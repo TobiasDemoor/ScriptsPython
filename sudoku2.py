@@ -41,7 +41,7 @@ class Sudoku:
         elif pos is not None:
             ret = self.matRes[pos.getX()][pos.getY()]
         else:
-            raise Exception(
+            raise TypeError(
                 "Faltan parametros x:{}, y:{}, pos:{}".format(x, y, pos))
         return ret
 
@@ -51,8 +51,11 @@ class Sudoku:
         elif pos is not None:
             self.matRes[pos.getX()][pos.getY()] = val
         else:
-            raise Exception(
+            raise TypeError(
                 "Faltan parametros x:{}, y:{}, pos:{}".format(x, y, pos))
+
+    def estaVacio(self, pos: Pos) -> bool:
+        return self.getVal(pos = pos) != 0
 
     def encuentroCuadPos(self, pos: Pos) -> Pos:
         ret = Pos()
@@ -86,7 +89,7 @@ class ResuelveSudoku:
             6: self.__cuadrado2,
         }
 
-    def __buscoVacio(self, pos: Pos):
+    def __buscoVacio(self, pos: Pos) -> bool:
         corte = False
         if pos.getY() < 8:
             pos.incrY()
@@ -95,7 +98,7 @@ class ResuelveSudoku:
             pos.incrX()
         else:
             corte = True
-        while self.sudoku.getVal(pos=pos) != 0 and not corte:
+        while self.sudoku.estaVacio(pos) and not corte:
             if pos.getY() < 8:
                 pos.incrY()
             elif pos.getX() < 8:
@@ -241,3 +244,4 @@ class ResuelveSudoku:
         self.__recorrido1()
         self.__preRecorrido2()
         self.__recorrido2()
+

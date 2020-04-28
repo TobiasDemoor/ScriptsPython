@@ -1,265 +1,278 @@
-# pylint: disable=no-member
 import numpy
-# from pandas import DataFrame
 
-def ImprimirSudoku(mat):
-    for i in range(3):
-        print('-------------------------')
-        for j in range(3):
-            for k in range(3):
-                print('| ', end = '')
-                for l in range(3):
-                    print( mat[j + i*3][l + k*3], end = ' ')
-            print('|')
-    print('-------------------------')
 
-def BuscoVacio(matRes, pos):
-    corte = False
-    if pos['y'] < 8 :
-        pos['y'] += 1
-    elif pos['x'] < 8 :
-        pos['y'] = 0
-        pos['x'] += 1
-    else:
-        corte = True
-    while matRes[pos['x']][pos['y']] != 0 and not corte:
-        if pos['y'] < 8 :
-            pos['y'] += 1
-        elif pos['x'] < 8 :
-            pos['y'] = 0
-            pos['x'] += 1
+class Pos:
+    def __init__(self, xInit: int = 0, yInit: int = 0):
+        self.xInit = xInit
+        self.yInit = yInit
+        self.x = xInit
+        self.y = yInit
+
+    def getX(self) -> int:
+        return self.x
+
+    def getY(self) -> int:
+        return self.y
+
+    def setX(self, x: int):
+        self.x = x
+
+    def setY(self, y: int):
+        self.y = y
+
+    def incrX(self):
+        self.x += 1
+
+    def incrY(self):
+        self.y += 1
+
+    def reset(self):
+        self.x = self.xInit
+        self.y = self.yInit
+
+
+class Sudoku:
+    def __init__(self, mat: numpy.ndarray):
+        self.matRes = mat
+
+    def getVal(self, x: int = None, y: int = None, pos: Pos = None) -> int:
+        if not (x is None or y is None):
+            ret = self.matRes[x][y]
+        elif pos is not None:
+            ret = self.matRes[pos.getX()][pos.getY()]
+        else:
+            raise TypeError(
+                "Faltan parametros x:{}, y:{}, pos:{}".format(x, y, pos))
+        return ret
+
+    def setVal(self, val: int, pos: Pos = None, x: int = None, y: int = None):
+        if not (x is None or y is None):
+            self.matRes[x][y] = val
+        elif pos is not None:
+            self.matRes[pos.getX()][pos.getY()] = val
+        else:
+            raise TypeError(
+                "Faltan parametros x:{}, y:{}, pos:{}".format(x, y, pos))
+
+    def estaVacio(self, pos: Pos) -> bool:
+        return self.getVal(pos = pos) != 0
+
+    def encuentroCuadPos(self, pos: Pos) -> Pos:
+        ret = Pos()
+        if pos.getX() < 3:
+            ret.setX(0)
+        elif pos.getX() < 6:
+            ret.setX(3)
+        else:
+            ret.setX(6)
+
+        if pos.getY() < 3:
+            ret.setY(0)
+        elif pos.getY() < 6:
+            ret.setY(3)
+        else:
+            ret.setY(6)
+
+        return ret
+
+
+class ResuelveSudoku:
+    def __init__(self, sudoku: Sudoku):
+        self.sudoku = sudoku
+        self.matPosb = numpy.ones((9, 9, 9))
+        self.recorridos = {
+            1: self.__horizontal1,
+            2: self.__vertical1,
+            3: self.__cuadrado1,
+            4: self.__horizontal2,
+            5: self.__vertical2,
+            6: self.__cuadrado2,
+        }
+
+    def __buscoVacio(self, pos: Pos) -> bool:
+        corte = False
+        if pos.getY() < 8:
+            pos.incrY()
+        elif pos.getX() < 8:
+            pos.setY(0)
+            pos.incrX()
         else:
             corte = True
-    return corte
-
-def EncuentroPosCuad(pos):
-    posI = {}
-
-    if pos['x'] < 3:
-        posI['x'] = 0
-    elif pos['x'] < 6:
-        posI['x'] = 3
-    else:
-        posI['x'] = 6
-
-    if pos['y'] < 3:
-        posI['y'] = 0
-    elif pos['y'] < 6:
-        posI['y'] = 3
-    else:   
-        posI['y'] = 6
-
-    return posI
-
-def Horizontal1(matRes, vecAux, pos):
-    for k in range(9):
-        if matRes[pos['x']][k] != 0:
-            vecAux[matRes[pos['x']][k] - 1] = 0
-
-def Vertical1(matRes, vecAux, pos):
-    for k in range(9):
-        if matRes[k][pos['y']] != 0:
-            vecAux[matRes[k][pos['y']] - 1] = 0
-
-def Cuadrado1(matRes, vecAux, pos):
-    posI = EncuentroPosCuad(pos)
-
-    for i in range(3):
-        for j in range(3):
-            if matRes[posI['x'] + i][posI['y'] + j] != 0:
-                vecAux[matRes[posI['x'] + i][posI['y'] + j] - 1] = 0
-
-def Recorrido1(matRes, matAux):
-    recorridos = {
-        1: Horizontal1,
-        2: Vertical1,
-        3: Cuadrado1,
-    }
-    pos = {
-        'x': 0,
-        'y': -1,
-    }
-    meCai = BuscoVacio(matRes, pos)
-    while not meCai:
-        direc = 1
-        while direc < 4 and not meCai:
-            recorridos[direc](matRes, matAux[pos['x']][pos['y']], pos)
-            cuenta = 0
-            k = 0
-            while k < 9 and cuenta < 2:
-                if matAux[pos['x']][pos['y']][k] == 1:
-                    cuenta += 1
-                    n = k
-                k += 1
-            if cuenta == 1:
-                matRes[pos['x']][pos['y']] = n + 1
-                pos = {
-                    'x': 0,
-                    'y': -1,
-                }
-                direc = 1
-                meCai = BuscoVacio(matRes, pos)
+        while self.sudoku.estaVacio(pos) and not corte:
+            if pos.getY() < 8:
+                pos.incrY()
+            elif pos.getX() < 8:
+                pos.setY(0)
+                pos.incrX()
             else:
-                direc += 1
-        meCai = BuscoVacio(matRes, pos)
+                corte = True
+        return corte
 
-def Horizontal2(matRes, matAux, pos):
-    k = 0
-    while k < 9 and matRes[pos['x']][pos['y']] == 0:
-        if matAux[pos['x']][pos['y']][k] == 1:
-            corte = False
-            j = 0
-            while j < pos['y'] and not corte:
-                corte = matAux[pos['x']][j][k] == 1
-                j += 1
-            j = pos['y'] + 1
-            while j < 9 and not corte:
-                corte = matAux[pos['x']][j][k] == 1
-                j += 1
-            if not corte:
-                matRes[pos['x']][pos['y']] = k + 1
-        k += 1
+    def __horizontal1(self, pos: Pos):
+        for k in range(9):
+            if self.sudoku.getVal(pos.getX(), k) != 0:
+                self.matPosb[pos.getX()][pos.getY()][self.sudoku.getVal(
+                    pos.getX(), k) - 1] = 0
 
-def Vertical2(matRes, matAux, pos):
-    k = 0
-    while k < 9 and matRes[pos['x']][pos['y']] == 0:
-        if matAux[pos['x']][pos['y']][k] == 1:
-            corte = False
-            i = 0
-            while i < pos['x'] and not corte:
-                corte = matAux[i][pos['y']][k] == 1
-                i += 1
-            i = pos['x'] + 1
-            while i < 9 and not corte:
-                corte = matAux[i][pos['y']][k] == 1
-                i += 1
-            if not corte:
-                matRes[pos['x']][pos['y']] = k + 1
-        k += 1
+    def __vertical1(self, pos: Pos):
+        for k in range(9):
+            if self.sudoku.getVal(k, pos.getY()) != 0:
+                self.matPosb[pos.getX()][pos.getY()][self.sudoku.getVal(
+                    k, pos.getY()) - 1] = 0
 
-def Cuadrado2(matRes, matAux, pos):
-    posI = EncuentroPosCuad(pos)
-    k = 0
-    while k < 9 and matRes[pos['x']][pos['y']] == 0:
-        if matAux[pos['x']][pos['y']][k] == 1:
-            corte = False
-            i = posI['x']
-            while i < posI['x'] + 3 and not corte:
-                j = posI['y']
-                while j < posI['y'] + 3 and not corte:
-                    corte = matAux[i][j][k] == 1 and (i != pos['x'] or j != pos['y'])
-                    j += 1
-                i += 1
-            if not corte:
-                matRes[pos['x']][pos['y']] = k + 1
-        k += 1
+    def __cuadrado1(self, pos: Pos):
+        posCuad = self.sudoku.encuentroCuadPos(pos)
+        for i in range(3):
+            for j in range(3):
+                if self.sudoku.getVal(posCuad.getX() + i, posCuad.getY() + j) != 0:
+                    self.matPosb[pos.getX()][pos.getY()][self.sudoku.getVal(
+                        posCuad.getX() + i, posCuad.getY() + j) - 1] = 0
 
-def PreRecorrido2(matRes, matAux):
-    for i in range(9):
+    def __actualizoAux(self, pos: Pos):
+        posCuad = self.sudoku.encuentroCuadPos(pos)
+        self.matPosb[pos.getX()][pos.getY()] = numpy.zeros(9)
+        for i in range(9):
+            self.matPosb[i][pos.getY()][self.sudoku.getVal(
+                pos.getX(), pos.getY()) - 1] = 0
         for j in range(9):
-            if matRes[i][j] != 0:
-                matAux[i][j] = numpy.zeros(9)
+            self.matPosb[pos.getX()][j][self.sudoku.getVal(
+                pos.getX(), pos.getY()) - 1] = 0
 
-def ActualizoAux(matRes, matAux, pos):
-    matAux[pos['x']][pos['y']] = numpy.zeros(9)
-    for i in range(9):
-        matAux[i][pos['y']][matRes[pos['x']][pos['y']] - 1] = 0
-    for j in range(9):
-        matAux[pos['x']][j][matRes[pos['x']][pos['y']] - 1] = 0
+        for i in range(3):
+            for j in range(3):
+                self.matPosb[posCuad.getX() + i][posCuad.getY() +
+                                                 j][self.sudoku.getVal(pos=pos) - 1] = 0
 
-    posI = EncuentroPosCuad(pos)
+    def __horizontal2(self, pos: Pos):
+        k = 0
+        while k < 9 and self.sudoku.getVal(pos=pos) == 0:
+            if self.matPosb[pos.getX()][pos.getY()][k] == 1:
+                corte = False
+                j = 0
+                while j < pos.getY() and not corte:
+                    corte = self.matPosb[pos.getX()][j][k] == 1
+                    j += 1
+                j = pos.getY() + 1
+                while j < 9 and not corte:
+                    corte = self.matPosb[pos.getX()][j][k] == 1
+                    j += 1
+                if not corte:
+                    self.sudoku.setVal(k + 1, pos=pos)
+            k += 1
 
-    for i in range(3):
-        for j in range(3):
-            matAux[posI['x'] + i][posI['y'] + j][matRes[pos['x']][pos['y']] - 1] = 0
+    def __vertical2(self, pos: Pos):
+        k = 0
+        while k < 9 and self.sudoku.getVal(pos=pos) == 0:
+            if self.matPosb[pos.getX()][pos.getY()][k] == 1:
+                corte = False
+                i = 0
+                while i < pos.getX() and not corte:
+                    corte = self.matPosb[i][pos.getY()][k] == 1
+                    i += 1
+                i = pos.getX() + 1
+                while i < 9 and not corte:
+                    corte = self.matPosb[i][pos.getY()][k] == 1
+                    i += 1
+                if not corte:
+                    self.sudoku.setVal(k + 1, pos=pos)
+            k += 1
 
-def Recorrido2(matRes, matAux):
-    recorridos = {
-        1: Horizontal2,
-        2: Vertical2,
-        3: Cuadrado2,
-    }
-    PreRecorrido2(matRes, matAux)
-    pos = {
-        'x': 0,
-        'y': -1,
-    }
-    meCai = BuscoVacio(matRes, pos)
-    while not meCai:
-        direc = 1
-        while direc < 4 and not meCai:
-            recorridos[direc](matRes, matAux, pos)
-            if matRes[pos['x']][pos['y']] != 0:
-                ActualizoAux(matRes, matAux, pos)
-                pos = {
-                    'x': 0,
-                    'y': -1,
-                }
-                direc = 1
-                meCai = BuscoVacio(matRes, pos)
-            else:
-                direc += 1
-        meCai = BuscoVacio(matRes, pos)
+    def __cuadrado2(self, pos: Pos):
+        k = 0
+        posCuad: Pos = self.sudoku.encuentroCuadPos(pos)
+        while k < 9 and self.sudoku.getVal(pos=pos) == 0:
+            if self.matPosb[pos.getX()][pos.getY()][k] == 1:
+                corte = False
+                i = posCuad.getX()
+                while i < posCuad.getX() + 3 and not corte:
+                    j = posCuad.getY()
+                    while j < posCuad.getY() + 3 and not corte:
+                        corte = self.matPosb[i][j][k] == 1 and (
+                            i != pos.getX() or j != pos.getY())
+                        j += 1
+                    i += 1
+                if not corte:
+                    self.sudoku.setVal(k + 1, pos=pos)
+            k += 1
 
-def main(matRes):
-    matAux = numpy.ones((9, 9, 9))
-    Recorrido1(matRes, matAux)
-    Recorrido2(matRes, matAux)
-    return matRes
+    def __preRecorrido2(self):
+        for i in range(9):
+            for j in range(9):
+                if self.sudoku.getVal(i, j) != 0:
+                    self.matPosb[i][j] = numpy.zeros(9)
 
-# matRes = numpy.array([
-#     [0, 0, 0, 8, 0, 5, 0, 1, 3],
-#     [0, 0, 0, 2, 0, 3, 6, 0, 0],
-#     [6, 0, 0, 0, 9, 0, 2, 0, 4],
-#     [0, 0, 0, 0, 0, 0, 0, 0, 5],
-#     [0, 4, 0, 1, 0, 0, 7, 0, 6],
-#     [2, 5, 6, 3, 0, 4, 8, 9, 0],
-#     [5, 9, 0, 0, 0, 7, 1, 0, 2],
-#     [1, 0, 2, 0, 8, 0, 4, 7, 0],
-#     [0, 0, 4, 9, 1, 0, 0, 3, 8],
-# ])
-# matRes = numpy.array([
-#     [0, 3, 0, 0, 0, 0, 0, 7, 0],
-#     [6, 0, 9, 0, 5, 0, 0, 3, 0],
-#     [8, 0, 0, 0, 0, 0, 0, 0, 0],
-#     [0, 6, 0, 3, 7, 8, 4, 1, 0],
-#     [3, 0, 0, 0, 0, 0, 0, 0, 8],
-#     [1, 8, 5, 4, 2, 9, 0, 0, 0],
-#     [0, 0, 8, 7, 4, 0, 0, 0, 0],
-#     [0, 0, 0, 1, 0, 0, 2, 0, 0],
-#     [0, 0, 0, 0, 3, 2, 0, 5, 7],
-# ])
-# matRes = numpy.array([
-#     [6, 0, 0, 0, 0, 1, 0, 0, 0], 
-#     [0, 0, 7, 0, 0, 0, 5, 0, 0], 
-#     [0, 3, 0, 6, 0, 0, 9, 4, 0], 
-#     [0, 0, 1, 0, 0, 0, 0, 0, 8], 
-#     [0, 0, 0, 0, 4, 0, 0, 0, 0], 
-#     [3, 0, 0, 0, 0, 0, 7, 0, 0], 
-#     [0, 7, 2, 0, 0, 5, 0, 3, 0], 
-#     [0, 0, 5, 0, 0, 0, 4, 0, 0], 
-#     [0, 0, 0, 2, 0, 0, 0, 0, 1],
-# ])
-# matRes = numpy.array([
-#     [0, 0, 1, 0, 0, 0, 0, 0, 0], 
-#     [0, 8, 0, 0, 2, 0, 0, 4, 0], 
-#     [0, 0, 9, 3, 0, 8, 2, 0, 7], 
-#     [0, 0, 2, 0, 0, 0, 4, 0, 0], 
-#     [0, 6, 0, 0, 8, 0, 0, 3, 0], 
-#     [0, 0, 8, 0, 0, 0, 9, 0, 0], 
-#     [9, 0, 3, 7, 0, 2, 5, 0, 0], 
-#     [0, 5, 0, 0, 4, 0, 0, 6, 0], 
-#     [0, 0, 0, 0, 0, 0, 7, 0, 0], 
-# ])
-# matRes = numpy.array([
-#     [0, 0, 0, 0, 8, 0, 7, 0, 0], 
-#     [8, 3, 2, 0, 5, 0, 0, 0, 0], 
-#     [7, 0, 5, 3, 9, 0, 0, 1, 0], 
-#     [0, 1, 3, 5, 0, 0, 8, 2, 0], 
-#     [2, 0, 0, 0, 3, 0, 0, 4, 9], 
-#     [9, 8, 0, 0, 0, 0, 0, 0, 0], 
-#     [0, 7, 0, 0, 0, 0, 0, 0, 0], 
-#     [4, 0, 9, 0, 6, 0, 1, 8, 5], 
-#     [0, 0, 1, 0, 0, 0, 0, 0, 0], 
-# ])
-# ImprimirSudoku(main(matRes))
+    def __recorrido1(self):
+        pos = Pos(0, -1)
+        meCai = self.__buscoVacio(pos)
+        while not meCai:
+            direc = 1
+            while direc < 4 and not meCai:
+                self.recorridos[direc](pos)
+                cuenta = 0
+                k = 0
+                while k < 9 and cuenta < 2:
+                    if self.matPosb[pos.getX()][pos.getY()][k] == 1:
+                        cuenta += 1
+                        n = k
+                    k += 1
+                if cuenta == 1:
+                    self.sudoku.setVal(n + 1, pos=pos)
+                    pos.reset()
+                    direc = 1
+                    meCai = self.__buscoVacio(pos)
+                else:
+                    direc += 1
+            meCai = self.__buscoVacio(pos)
+
+    def __recorrido2(self):
+        pos = Pos(0, -1)
+        meCai = self.__buscoVacio(pos)
+        while not meCai:
+            direc = 4
+            while direc < 7 and not meCai:
+                self.recorridos[direc](pos)
+                if self.sudoku.getVal(pos.getX(), pos.getY()) != 0:
+                    self.__actualizoAux(pos)
+                    pos.reset()
+                    direc = 4
+                    meCai = self.__buscoVacio(pos)
+                else:
+                    direc += 1
+            meCai = self.__buscoVacio(pos)
+
+    def main(self):
+        self.__recorrido1()
+        self.__preRecorrido2()
+        self.__recorrido2()
+    
+    def getSudoku(self) -> Sudoku:
+        return self.sudoku
+
+class VistaSudokuConsola:
+    @staticmethod
+    def imprimirSudoku(sudoku: Sudoku):
+        for i in range(3):
+            print('-------------------------')
+            for j in range(3):
+                for k in range(3):
+                    print('| ', end = '')
+                    for l in range(3):
+                        print(sudoku.getVal(j + i*3, l + k*3), end = ' ')
+                print('|')
+        print('-------------------------')
+
+matRes = numpy.array([
+    [0, 0, 0, 0, 8, 0, 7, 0, 0], 
+    [8, 3, 2, 0, 5, 0, 0, 0, 0], 
+    [7, 0, 5, 3, 9, 0, 0, 1, 0], 
+    [0, 1, 3, 5, 0, 0, 8, 2, 0], 
+    [2, 0, 0, 0, 3, 0, 0, 4, 9], 
+    [9, 8, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 7, 0, 0, 0, 0, 0, 0, 0], 
+    [4, 0, 9, 0, 6, 0, 1, 8, 5], 
+    [0, 0, 1, 0, 0, 0, 0, 0, 0], 
+])
+sudoku = Sudoku(matRes)
+resuelveSudoku = ResuelveSudoku(sudoku)
+resuelveSudoku.main()
+VistaSudokuConsola.imprimirSudoku(resuelveSudoku.getSudoku())

@@ -1,52 +1,7 @@
 import numpy as np
-from parOrdenado import ParOrdenado
+from fisica import ParOrdenado, Particula, ICampoVectorial, CampoNulo
 from matplotlib import pyplot as plt
 from matplotlib import animation
-
-
-class Particula:
-    def __init__(self, masa: float, pos: ParOrdenado = ParOrdenado(), vel: ParOrdenado = ParOrdenado(), radio: float = 5e-6):
-        self.__masa = masa
-        self.__pos = pos
-        self.__vel = vel
-        self.__radio = radio
-
-    def getMasa(self) -> float:
-        return self.__masa
-
-    def getPos(self) -> ParOrdenado:
-        return self.__pos
-
-    def getVel(self) -> ParOrdenado:
-        return self.__vel
-
-    def getRadio(self) -> float:
-        return self.__radio
-
-    def setPos(self, pos: ParOrdenado):
-        self.__pos = pos
-
-    def setVel(self, vel: ParOrdenado):
-        self.__vel = vel
-
-    def distancia(self, p) -> float:
-        return self.getPos().distancia(p.getPos())
-
-    def getVersor(self, p) -> ParOrdenado:
-        return self.getPos().getVersor(p.getPos())
-
-    def getVect(self):
-        return [self.getPos().getX(), self.getPos().getY()]
-
-
-class ICampoVectorial:
-    def valor(self, punto: ParOrdenado) -> ParOrdenado:
-        pass
-
-
-class CampoNulo:
-    def valor(self, punto: ParOrdenado) -> ParOrdenado:
-        return ParOrdenado
 
 
 class Carga(Particula):
@@ -67,7 +22,7 @@ class Carga(Particula):
         return e.valor(self.getPos()) * self.getCarga()
 
     def _fuerzaLorentz(self, b: ICampoVectorial) -> ParOrdenado:
-        return ParOrdenado()
+        return self.getVel().prodVect(b.valor(self.getPos())) * self.getCarga()
 
     def _fuerzaTotal(self, cargas: np.ndarray, e: ICampoVectorial, b: ICampoVectorial):
         return self._fuerzaCoulombQ(cargas) + self._fuerzaCoulombE(e) + self._fuerzaLorentz(b)
@@ -83,6 +38,7 @@ class Carga(Particula):
             res = self.getVersor(
                 q) * (8.987e9 * self.getCarga() * q.getCarga() / dist ** 2)
         elif (dist > 0):
+            # placeholder de repulsion cercana
             res = self.getVersor(q) * abs(8.987e9 *
                                           self.getCarga() * q.getCarga())
         else:
@@ -156,7 +112,7 @@ class Entorno:
 
 class PruebaAnim:
     def initAnim(self):
-        self.particles.set_data([], [])
+        self.particles.set_data([], [])#, [])
         self.rect.set_edgecolor('none')
         return self.particles, self.rect
 
@@ -170,10 +126,12 @@ class PruebaAnim:
         vect = self.entorno.state()
         vectX = []
         vectY = []
+        # vectZ = []
         for q in vect:
             vectX.append(q[0])
             vectY.append(q[1])
-        self.particles.set_data(vectX, vectY)
+            # vectZ.append(q[2])
+        self.particles.set_data(vectX, vectY)#, vectZ)
         self.particles.set_markersize(ms)
         return self.particles, self.rect
 
@@ -200,19 +158,32 @@ class PruebaAnim:
 
 
 class EConstante(ICampoVectorial):
+    def __init__(self, x: float, y: float, z: float):
+        self.__x = x
+        self.__y = y
+        self.__z = z 
     def valor(self, punto: ParOrdenado) -> ParOrdenado:
-        return ParOrdenado(0, 1e-9)
+        return ParOrdenado(self.__x, self.__y, self.__z)
 
 
-entorno = Entorno(10, 8, e=EConstante())
-entorno.agregarCarga(
-    Carga(-1e-20, 2e-30, ParOrdenado(-0.5, 0), ParOrdenado(0, 0.3)))
-entorno.agregarCarga(
-    Carga(-1e-20, 2e-30, ParOrdenado(0.5, 0), ParOrdenado(0, -0.3)))
-entorno.agregarCarga(
-    Carga(-1e-20, 2e-30, ParOrdenado(0, -0.5), ParOrdenado(-0.3, 0)))
-entorno.agregarCarga(
-    Carga(-1e-20, 2e-30, ParOrdenado(0, 0.5), ParOrdenado(0.3, 0)))
-entorno.agregarCarga(CargaInamovible(1e-20, 1))
+class BConstante(ICampoVectorial):
+    def __init__(self, x: float, y: float, z: float):
+        self.__x = x
+        self.__y = y
+        self.__z = z 
+    def valor(self, punto: ParOrdenado) -> ParOrdenado:
+        return ParOrdenado(self.__x, self.__y, self.__z)
+
+entorno = Entorno(4, 4, e=EConstante(0, 0, 0), b=BConstante(0, 0, 1e-9))
+entorno.agregarCarga(Carga(-1e-20, 2e-30, ParOrdenado(), ParOrdenado(0,0.3)))
+# entorno.agregarCarga(
+#     Carga(-1e-20, 2e-30, ParOrdenado(-0.5, 0), ParOrdenado(0, 0.3)))
+# entorno.agregarCarga(
+#     Carga(-1e-20, 2e-30, ParOrdenado(0.5, 0), ParOrdenado(0, -0.3)))
+# entorno.agregarCarga(
+#     Carga(-1e-20, 2e-30, ParOrdenado(0, -0.5), ParOrdenado(-0.3, 0)))
+# entorno.agregarCarga(
+#     Carga(-1e-20, 2e-30, ParOrdenado(0, 0.5), ParOrdenado(0.3, 0)))
+# entorno.agregarCarga(CargaInamovible(1e-20, 1))
 prueba = PruebaAnim()
 prueba.main(entorno)

@@ -4,69 +4,99 @@ from matplotlib import pyplot as plt
 from matplotlib import animation
 
 
-class Carga:
-    def __init__(self, carga: float, masa: float, x: float = 0, y: float = 0, velX: float = 0, velY: float = 0, radio: float = 5e-6):
-        self.__carga = carga
+class Particula:
+    def __init__(self, masa: float, pos: ParOrdenado = ParOrdenado(), vel: ParOrdenado = ParOrdenado(), radio: float = 5e-6):
         self.__masa = masa
-        self.__pos = ParOrdenado(x, y)
-        self.__vel = ParOrdenado(velX, velY)
+        self.__pos = pos
+        self.__vel = vel
         self.__radio = radio
-
-    def getCarga(self) -> float:
-        return self.__carga
 
     def getMasa(self) -> float:
         return self.__masa
 
     def getPos(self) -> ParOrdenado:
         return self.__pos
-    
+
     def getVel(self) -> ParOrdenado:
         return self.__vel
-    
+
     def getRadio(self) -> float:
         return self.__radio
-    
+
     def setPos(self, pos: ParOrdenado):
         self.__pos = pos
 
     def setVel(self, vel: ParOrdenado):
         self.__vel = vel
 
-    def actualiza(self, cargas, dt: float):
-        self.__pos += self.getVel() * dt
-        fuerza = ParOrdenado()
-        for q in cargas:
-            fuerza += q.getFuerza(self)
-        self.__vel += (fuerza / self.getMasa()) * dt
+    def distancia(self, p) -> float:
+        return self.getPos().distancia(p.getPos())
 
-    def distancia(self, q) -> float:
-        return self.getPos().distancia(q.getPos())
-
-    def getVersor(self, q) -> ParOrdenado:
-        return self.getPos().getVersor(q.getPos())
-
-    def getFuerza(self, q) -> ParOrdenado:
-        dist = q.distancia(self)
-        if (dist > self.getRadio()):
-            res = self.getVersor(q) * (8.987e9 * self.getCarga() * q.getCarga() / dist ** 2)
-        elif (dist > 0):
-            res = self.getVersor(q) * abs(8.987e9 * self.getCarga() * q.getCarga())
-        else:
-            res = ParOrdenado()
-        return res
+    def getVersor(self, p) -> ParOrdenado:
+        return self.getPos().getVersor(p.getPos())
 
     def getVect(self):
         return [self.getPos().getX(), self.getPos().getY()]
 
 
+class ICampoVectorial:
+    def valor(self, punto: ParOrdenado) -> ParOrdenado:
+        pass
+
+
+class CampoNulo:
+    def valor(self, punto: ParOrdenado) -> ParOrdenado:
+        return ParOrdenado
+
+
+class Carga(Particula):
+    def __init__(self, carga: float, masa: float, pos: ParOrdenado = ParOrdenado(), vel: ParOrdenado = ParOrdenado(), radio: float = 5e-6):
+        super().__init__(masa, pos, vel, radio)
+        self.__carga = carga
+
+    def getCarga(self) -> float:
+        return self.__carga
+
+    def _fuerzaCoulombQ(self, cargas: np.ndarray) -> ParOrdenado:
+        fuerza = ParOrdenado()
+        for q in cargas:
+            fuerza += q.getFuerza(self)
+        return fuerza
+
+    def _fuerzaCoulombE(self, e: ICampoVectorial) -> ParOrdenado:
+        return e.valor(self.getPos()) * self.getCarga()
+
+    def _fuerzaLorentz(self, b: ICampoVectorial) -> ParOrdenado:
+        return ParOrdenado()
+
+    def _fuerzaTotal(self, cargas: np.ndarray, e: ICampoVectorial, b: ICampoVectorial):
+        return self._fuerzaCoulombQ(cargas) + self._fuerzaCoulombE(e) + self._fuerzaLorentz(b)
+
+    def actualiza(self, cargas: np.ndarray, dt: float, e: ICampoVectorial = CampoNulo(), b: ICampoVectorial = CampoNulo()):
+        self.setPos(self.getPos() + self.getVel() * dt)
+        self.setVel(self.getVel() +
+                    (self._fuerzaTotal(cargas, e, b) / self.getMasa()) * dt)
+
+    def getFuerza(self, q) -> ParOrdenado:
+        dist = q.distancia(self)
+        if (dist > self.getRadio()):
+            res = self.getVersor(
+                q) * (8.987e9 * self.getCarga() * q.getCarga() / dist ** 2)
+        elif (dist > 0):
+            res = self.getVersor(q) * abs(8.987e9 *
+                                          self.getCarga() * q.getCarga())
+        else:
+            res = ParOrdenado()
+        return res
+
+
 class CargaInamovible(Carga):
-    def actualiza(self, cargas, dt: float):
-        return
+    def _fuerzaTotal(self, cargas, e, b) -> ParOrdenado:
+        return ParOrdenado()
 
 
 class Entorno:
-    def __init__(self, ancho: float, alto: float, size: float = 0.04, k: float = 0.9):
+    def __init__(self, ancho: float, alto: float, size: float = 0.04, k: float = 0.9, e: ICampoVectorial = CampoNulo(), b: ICampoVectorial = CampoNulo()):
         self.__ancho = ancho
         self.__alto = alto
         self.__ancla = (-ancho/2, -alto/2)
@@ -74,14 +104,37 @@ class Entorno:
         self.__maxY = alto/2 - size
         self.__size = size
         self.__k = k
+        self.__e = e
+        self.__b = b
         self.__cargas = []
+
+    def getAncho(self) -> float:
+        return self.__ancho
+
+    def getAlto(self) -> float:
+        return self.__alto
+
+    def getAncla(self) -> tuple:
+        return self.__ancla
+
+    def getMaxX(self) -> float:
+        return self.__maxX
+
+    def getMaxY(self) -> float:
+        return self.__maxY
+
+    def getSize(self) -> float:
+        return self.__size
+
+    def getK(self) -> float:
+        return self.__k
 
     def agregarCarga(self, carga: Carga):
         self.__cargas.append(carga)
 
     def step(self, dt: float):
         for q in self.__cargas:
-            q.actualiza(self.__cargas, dt)
+            q.actualiza(self.__cargas, dt, self.__e, self.__b)
             pos = q.getPos()
             vel = q.getVel()
             dx = 0
@@ -100,27 +153,6 @@ class Entorno:
             vect.append(q.getVect())
         return vect
 
-    def getAncho(self) -> float:
-        return self.__ancho
-
-    def getAlto(self) -> float:
-        return self.__alto
-
-    def getAncla(self) -> tuple:
-        return self.__ancla
-    
-    def getMaxX(self) -> float:
-        return self.__maxX
-    
-    def getMaxY(self) -> float:
-        return self.__maxY
-
-    def getSize(self) -> float:
-        return self.__size
-    
-    def getK(self) -> float:
-        return self.__k
-
 
 class PruebaAnim:
     def initAnim(self):
@@ -138,7 +170,6 @@ class PruebaAnim:
         vect = self.entorno.state()
         vectX = []
         vectY = []
-        print(vect)
         for q in vect:
             vectX.append(q[0])
             vectY.append(q[1])
@@ -153,7 +184,7 @@ class PruebaAnim:
         self.fig = plt.figure()
         self.fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
         self.ax = self.fig.add_subplot(111, aspect='equal', autoscale_on=False,
-                                       xlim=(-3.2, 3.2), ylim=(-2.4, 2.4))
+                                       xlim=(-self.entorno.getMaxX(), self.entorno.getMaxX()), ylim=(-self.entorno.getMaxY(), self.entorno.getMaxY()))
 
         # particles holds the locations of the particles
         self.particles, = self.ax.plot([], [], 'bo', ms=6)
@@ -168,11 +199,20 @@ class PruebaAnim:
         plt.show()
 
 
-entorno = Entorno(4, 4)
-entorno.agregarCarga(Carga(-1e-20, 2e-30, -0.5, 0, 0, 0.3))
-entorno.agregarCarga(Carga(-1e-20, 2e-30, 0.5, 0, 0, -0.3))
-entorno.agregarCarga(Carga(-1e-20, 2e-30, 0, -0.5, -0.3, 0))
-entorno.agregarCarga(Carga(-1e-20, 2e-30, 0, 0.5, 0.3, 0))
-entorno.agregarCarga(CargaInamovible(1e-20, 1, 0, 0))
+class EConstante(ICampoVectorial):
+    def valor(self, punto: ParOrdenado) -> ParOrdenado:
+        return ParOrdenado(0, 1e-9)
+
+
+entorno = Entorno(10, 8, e=EConstante())
+entorno.agregarCarga(
+    Carga(-1e-20, 2e-30, ParOrdenado(-0.5, 0), ParOrdenado(0, 0.3)))
+entorno.agregarCarga(
+    Carga(-1e-20, 2e-30, ParOrdenado(0.5, 0), ParOrdenado(0, -0.3)))
+entorno.agregarCarga(
+    Carga(-1e-20, 2e-30, ParOrdenado(0, -0.5), ParOrdenado(-0.3, 0)))
+entorno.agregarCarga(
+    Carga(-1e-20, 2e-30, ParOrdenado(0, 0.5), ParOrdenado(0.3, 0)))
+entorno.agregarCarga(CargaInamovible(1e-20, 1))
 prueba = PruebaAnim()
 prueba.main(entorno)

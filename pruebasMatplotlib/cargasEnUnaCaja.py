@@ -174,16 +174,15 @@ class BConstante(ICampoVectorial):
     def valor(self, punto: ParOrdenado) -> ParOrdenado:
         return ParOrdenado(self.__x, self.__y, self.__z)
 
-entorno = Entorno(4, 4, e=EConstante(0, 0, 0), b=BConstante(0, 0, 1e-9))
-entorno.agregarCarga(Carga(-1e-20, 2e-30, ParOrdenado(), ParOrdenado(0,0.3)))
+entorno = Entorno(4, 4, k=0.8, b=BConstante(0, 0, 1e-9))
 # entorno.agregarCarga(
 #     Carga(-1e-20, 2e-30, ParOrdenado(-0.5, 0), ParOrdenado(0, 0.3)))
-# entorno.agregarCarga(
-#     Carga(-1e-20, 2e-30, ParOrdenado(0.5, 0), ParOrdenado(0, -0.3)))
+entorno.agregarCarga(
+    Carga(-1e-20, 2e-30, ParOrdenado(0.5, 0), ParOrdenado(0, -0.3)))
 # entorno.agregarCarga(
 #     Carga(-1e-20, 2e-30, ParOrdenado(0, -0.5), ParOrdenado(-0.3, 0)))
-# entorno.agregarCarga(
-#     Carga(-1e-20, 2e-30, ParOrdenado(0, 0.5), ParOrdenado(0.3, 0)))
+entorno.agregarCarga(
+    Carga(-1e-20, 2e-30, ParOrdenado(0, 0.5), ParOrdenado(0.3, 0)))
 # entorno.agregarCarga(CargaInamovible(1e-20, 1))
 prueba = PruebaAnim()
 prueba.main(entorno)

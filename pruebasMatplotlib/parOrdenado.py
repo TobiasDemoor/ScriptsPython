@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class ParOrdenadoBase:
+class ParOrdenado:
     def __init__(self, x: float = 0, y: float = 0, z: float = 0):
         self.__x = x
         self.__y = y
@@ -64,18 +64,13 @@ class ParOrdenadoBase:
     def __str__(self):
         return "(" + (str)(self.__x) + "," + (str)(self.__y) + "," + (str)(self.__z) + ")"
 
-
-class ParOrdenado(ParOrdenadoBase):
-    def __init__(self, x: float = 0, y: float = 0, z: float = 0):
-        super().__init__(x, y, z)
-
     def modulo(self) -> float:
         aux = self ** 2
         return np.sqrt(aux.getX()+aux.getY()+aux.getZ())
 
-    def distancia(self, pos: ParOrdenadoBase) -> float:
+    def distancia(self, pos) -> float:
         aux = self - pos
         return aux.modulo()
 
-    def getVersor(self, pos: ParOrdenadoBase) -> ParOrdenadoBase:
+    def getVersor(self, pos):
         return (pos - self)/self.distancia(pos)

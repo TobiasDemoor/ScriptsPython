@@ -4,11 +4,15 @@ from matPlotPoints import PuntosAnim
 
 class Carga(Particula):
     def __init__(self, carga: float, masa: float, pos: ParOrdenado = ParOrdenado(), vel: ParOrdenado = ParOrdenado(), radio: float = 5e-6):
-        super().__init__(masa, pos, vel, radio)
+        super().__init__(masa, pos, vel)
         self.__carga = carga
+        self.__radio = radio
 
     def getCarga(self) -> float:
         return self.__carga
+    
+    def getRadio(self) -> float:
+        return self.__radio
 
     def _fuerzaCoulombQ(self, cargas: np.ndarray) -> ParOrdenado:
         fuerza = ParOrdenado()

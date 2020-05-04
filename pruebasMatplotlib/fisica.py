@@ -75,18 +75,25 @@ class ParOrdenado:
         return aux.modulo()
 
     def getVersor(self, pos):
-        return (pos - self)/self.distancia(pos)
+        dist = self.distancia(pos)
+        if (dist != 0):
+            res = (pos - self)/dist
+        else:
+            res = ParOrdenado()
+        return res
     
-    def getVect(self):
+    def getVector(self, pos):
+        return (pos - self)
+
+    def getArr(self):
         return [self.getX(), self.getY(), self.getZ()]
 
 
 class Particula:
-    def __init__(self, masa: float, pos: ParOrdenado, vel: ParOrdenado, radio: float):
+    def __init__(self, masa: float, pos: ParOrdenado, vel: ParOrdenado):
         self.__masa = masa
         self.__pos = pos
         self.__vel = vel
-        self.__radio = radio
 
     def getMasa(self) -> float:
         return self.__masa
@@ -96,9 +103,6 @@ class Particula:
 
     def getVel(self) -> ParOrdenado:
         return self.__vel
-
-    def getRadio(self) -> float:
-        return self.__radio
 
     def setPos(self, pos: ParOrdenado):
         self.__pos = pos
@@ -112,8 +116,8 @@ class Particula:
     def getVersor(self, p) -> ParOrdenado:
         return self.getPos().getVersor(p.getPos())
 
-    def getVect(self):
-        return self.getPos().getVect()
+    def getArr(self):
+        return self.getPos().getArr()
     
     def actualiza(self, particulas: np.ndarray, dt: float):
         raise NotImplementedError
@@ -195,5 +199,5 @@ class Entorno:
     def state(self) -> np.ndarray:
         vect = []
         for p in self.__particulas:
-            vect.append(p.getVect())
+            vect.append(p.getArr())
         return vect

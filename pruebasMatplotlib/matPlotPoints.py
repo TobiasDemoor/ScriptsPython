@@ -5,6 +5,9 @@ from fisica import Entorno
 
 
 class PuntosAnim:
+    def __init__(self, dt: float = 1/30):
+        self.dt = dt
+
     def initAnim(self):
         self.particles.set_data([], [])#, [])
         self.rect.set_edgecolor('none')
@@ -31,7 +34,6 @@ class PuntosAnim:
 
     def main(self, entorno: Entorno):
         self.entorno = entorno
-        self.dt = 1/30
         # set up figure and animation
         self.fig = plt.figure()
         self.fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
@@ -47,5 +49,5 @@ class PuntosAnim:
         self.ax.add_patch(self.rect)
         # creo el objeto animacion
         self.anim = animation.FuncAnimation(
-            self.fig, self.animate, init_func=self.initAnim, frames=600, interval=10, blit=True)
+            self.fig, self.animate, init_func=self.initAnim, frames=600, interval=5, blit=True)
         plt.show()

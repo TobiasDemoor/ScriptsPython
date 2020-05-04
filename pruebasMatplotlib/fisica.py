@@ -82,7 +82,7 @@ class ParOrdenado:
 
 
 class Particula:
-    def __init__(self, masa: float, pos: ParOrdenado = ParOrdenado(), vel: ParOrdenado = ParOrdenado(), radio: float = 5e-6):
+    def __init__(self, masa: float, pos: ParOrdenado, vel: ParOrdenado, radio: float):
         self.__masa = masa
         self.__pos = pos
         self.__vel = vel
@@ -114,6 +114,9 @@ class Particula:
 
     def getVect(self):
         return self.getPos().getVect()
+    
+    def actualiza(self, particulas: np.ndarray, dt: float):
+        raise NotImplementedError
 
 
 class ICampoVectorial:
@@ -124,3 +127,73 @@ class ICampoVectorial:
 class CampoNulo:
     def valor(self, punto: ParOrdenado) -> ParOrdenado:
         return ParOrdenado()
+
+class CVConstante(ICampoVectorial):
+    def __init__(self, x: float, y: float, z: float):
+        self.__x = x
+        self.__y = y
+        self.__z = z 
+    def valor(self, punto: ParOrdenado) -> ParOrdenado:
+        return ParOrdenado(self.__x, self.__y, self.__z)
+
+class Entorno:
+    def __init__(self, ancho: float, alto: float, size: float, k: float):
+        self.__ancho = ancho
+        self.__alto = alto
+        self.__ancla = (-ancho/2, -alto/2)
+        self.__maxX = ancho/2 - size
+        self.__maxY = alto/2 - size
+        self.__size = size
+        self.__k = k
+        self.__particulas = []
+
+    def getAncho(self) -> float:
+        return self.__ancho
+
+    def getAlto(self) -> float:
+        return self.__alto
+
+    def getAncla(self) -> tuple:
+        return self.__ancla
+
+    def getMaxX(self) -> float:
+        return self.__maxX
+
+    def getMaxY(self) -> float:
+        return self.__maxY
+
+    def getSize(self) -> float:
+        return self.__size
+
+    def getK(self) -> float:
+        return self.__k
+    
+    def getParticulas(self) -> np.ndarray:
+        return self.__particulas
+
+    def agregarParticula(self, part: Particula):
+        self.__particulas.append(part)
+    
+    def correccion(self, p: Particula):
+        pos = p.getPos()
+        vel = p.getVel()
+        dx = 0
+        dy = 0
+        if (pos.getX() >= self.getMaxX()) or (pos.getX() <= -self.getMaxX()):
+            dx = (pos.getX() - self.getMaxX())
+            vel.setX(-self.getK() * abs(dx)/dx * abs(vel.getX()))
+        if (pos.getY() >= self.getMaxY()) or (pos.getY() <= -self.getMaxY()):
+            dy = (pos.getY() - self.getMaxY())
+            vel.setY(-self.getK() * abs(dy)/dy * abs(vel.getY()))
+        pos -= ParOrdenado(dx, dy)
+
+    def step(self, dt: float):
+        for p in self.__particulas:
+            p.actualiza(self.__particulas, dt)
+            self.correccion(p)
+
+    def state(self) -> np.ndarray:
+        vect = []
+        for p in self.__particulas:
+            vect.append(p.getVect())
+        return vect

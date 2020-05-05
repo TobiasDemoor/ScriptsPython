@@ -123,9 +123,6 @@ class Particula:
 
     def getArr(self):
         return self.getPos().getArr()
-    
-    def posFromVeldt(self, dt: float):
-        self.__pos += self.__vel * dt
 
     def actualiza(self, particulas: np.ndarray, dt: float):
         raise NotImplementedError

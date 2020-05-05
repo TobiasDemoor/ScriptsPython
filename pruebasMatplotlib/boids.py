@@ -74,7 +74,7 @@ class Ave(Particula):
         return promPos, promVel
 
     def actualiza(self, aves: np.ndarray, dt: float):
-        self.posFromVeldt(dt)
+        self.setPos(self.getPos() + self.getVel() * dt)
         prom = self.promedio(aves)
         tendPos = prom[0] - self.getPos()
         tendVel = prom[1] - self.getVel()

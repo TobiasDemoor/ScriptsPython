@@ -3,10 +3,10 @@ from matPlotPoints import PuntosAnim
 
 
 class Ave(Particula):
-    __vision = 15
-    __maxVel = 10
+    __vision = 20
+    __maxVel = 120
     __cercania = 5
-    __factorReaccion = 6
+    __factorReaccion = 3
 
     @staticmethod
     def setVision(vision: float):
@@ -77,18 +77,16 @@ class Ave(Particula):
         self.posFromVeldt(dt)
         prom = self.promedio(aves)
         tendPos = prom[0] - self.getPos()
-        tendVel = self.getVel().prodVect(prom[1]).prodVect(self.getVel())
-        tendCentro = self.getPos() * -1
+        tendVel = prom[1] - self.getVel()
         if tendPos.modulo() < Ave.getCercania():
             if tendPos.modulo() > 0:
                 tendPos *= -1
             else:
                 tendPos *= 0
         self.setTend(
-            self.getTend().getUnitario() +
-            tendVel.getUnitario() +
-            tendPos.getUnitario() * 2+
-            tendCentro.getUnitario()
+            self.getTend() +
+            tendVel +
+            tendPos
         )
         self.setVel(self.getVel() + self.getTend() * Ave.getFactorReaccion() * dt)
 
@@ -97,11 +95,18 @@ class Jaula(Entorno):
     def __init__(self, ancho: float, alto: float, size: float = 7e-2, k: float = 1):
         super().__init__(ancho, alto, size, k)
 
+    def correccion(self, p: Ave):
+        tend = p.getTend()
+        pos = p.getPos()
+        if (pos.getX() >= self.getMaxX()*0.3) or (pos.getX() <= -self.getMaxX()*0.3) or (pos.getY() >= self.getMaxY()*0.3) or (pos.getY() <= -self.getMaxY()*0.3):
+            tend += pos * 2
+        super().correccion(p)
+
     def generarAves(self, n: int, orden: float = 2):
-        ancho = self.getAncho()
-        alto = self.getAlto()
-        maxX = self.getMaxX()
-        maxY = self.getMaxY()
+        ancho = self.getAncho() * 0.7
+        alto = self.getAlto() * 0.7
+        maxX = self.getMaxX() * 0.7
+        maxY = self.getMaxY() * 0.7
         for i in range(n):
             self.agregarParticula(Ave(
                 ParOrdenado(np.random.rand()*ancho - maxX, np.random.rand()*alto - maxY),
@@ -109,7 +114,7 @@ class Jaula(Entorno):
                 ))
 
 
-entorno = Jaula(20, 20)
-entorno.generarAves(30, 10)
-prueba = PuntosAnim(1/24)
+entorno = Jaula(100, 100, 0.3)
+entorno.generarAves(50, 100)
+prueba = PuntosAnim(1/60)
 prueba.main(entorno)

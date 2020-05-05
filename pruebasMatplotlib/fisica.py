@@ -183,6 +183,12 @@ class Entorno:
     def getParticulas(self) -> np.ndarray:
         return self.__particulas
 
+    def setMaxX(self, maxX: float):
+        self.__maxX = maxX
+
+    def setMaxY(self, maxY: float):
+        self.__maxY = maxY
+
     def agregarParticula(self, part: Particula):
         self.__particulas.append(part)
     

@@ -81,9 +81,14 @@ class ParOrdenado:
         else:
             res = ParOrdenado()
         return res
-    
-    def getVector(self, pos):
-        return (pos - self)
+
+    def getUnitario(self):
+        mod = self.modulo()
+        if (mod > 0):
+            res = self / self.modulo()
+        else:
+            res = ParOrdenado()
+        return res
 
     def getArr(self):
         return [self.getX(), self.getY(), self.getZ()]
@@ -119,6 +124,9 @@ class Particula:
     def getArr(self):
         return self.getPos().getArr()
     
+    def posFromVeldt(self, dt: float):
+        self.__pos += self.__vel * dt
+
     def actualiza(self, particulas: np.ndarray, dt: float):
         raise NotImplementedError
 

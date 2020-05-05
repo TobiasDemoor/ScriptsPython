@@ -3,9 +3,10 @@ from matPlotPoints import PuntosAnim
 
 
 class Ave(Particula):
-    __vision = 3
-    __maxVel = 8
-    __cercania = 1
+    __vision = 15
+    __maxVel = 10
+    __cercania = 5
+    __factorReaccion = 6
 
     @staticmethod
     def setVision(vision: float):
@@ -30,6 +31,14 @@ class Ave(Particula):
     @staticmethod
     def getCercania() -> float:
         return Ave.__cercania
+
+    @staticmethod
+    def setFactorReaccion(factorReaccion: float):
+        Ave.__factorReaccion = factorReaccion
+
+    @staticmethod
+    def getFactorReaccion() -> float:
+        return Ave.__factorReaccion
 
     def __init__(self, pos: ParOrdenado = ParOrdenado(), vel: ParOrdenado = ParOrdenado()):
         super().__init__(1, pos, vel)
@@ -64,44 +73,43 @@ class Ave(Particula):
             promVel = self.getVel()
         return promPos, promVel
 
-    def setVelPorTend(self, dt):
-        tend = self.getTend()
-        if (tend.modulo() > 0):
-            self.setVel(self.getVel() + tend.prodVect(self.getVel()) * dt)
-
     def actualiza(self, aves: np.ndarray, dt: float):
-        self.setPos(self.getPos() + self.getVel() * dt)
+        self.posFromVeldt(dt)
         prom = self.promedio(aves)
-        vect = self.getPos().getVector(prom[0])
-        tendCentro = self.getVel().prodVect(self.getPos() * -1)
-        if vect.modulo() < Ave.getCercania():
-            if vect.modulo() > 0:
-                tendPos = self.getVel().prodVect(vect*-1)
+        tendPos = prom[0] - self.getPos()
+        tendVel = self.getVel().prodVect(prom[1]).prodVect(self.getVel())
+        tendCentro = self.getPos() * -1
+        if tendPos.modulo() < Ave.getCercania():
+            if tendPos.modulo() > 0:
+                tendPos *= -1
             else:
-                tendPos = ParOrdenado()
-        else:
-            tendPos = self.getVel().prodVect(vect)
-        self.setTend((self.getTend() * 2+
-                    self.getVel().prodVect(prom[1]) * 4 +
-                    tendPos * 4 +
-                    tendCentro
-                    )/11)
-        self.setVelPorTend(dt)
+                tendPos *= 0
+        self.setTend(
+            self.getTend().getUnitario() +
+            tendVel.getUnitario() +
+            tendPos.getUnitario() * 2+
+            tendCentro.getUnitario()
+        )
+        self.setVel(self.getVel() + self.getTend() * Ave.getFactorReaccion() * dt)
 
 
 class Jaula(Entorno):
-    def __init__(self, ancho: float, alto: float, size: float = 5e-2, k: float = 1):
+    def __init__(self, ancho: float, alto: float, size: float = 7e-2, k: float = 1):
         super().__init__(ancho, alto, size, k)
 
     def generarAves(self, n: int, orden: float = 2):
+        ancho = self.getAncho()
+        alto = self.getAlto()
+        maxX = self.getMaxX()
+        maxY = self.getMaxY()
         for i in range(n):
             self.agregarParticula(Ave(
-                ParOrdenado(np.random.rand()*self.getMaxX(), np.random.rand()*self.getMaxY()),
-                ParOrdenado((np.random.rand()+0.5)*orden, (np.random.rand()+0.5)*orden)
+                ParOrdenado(np.random.rand()*ancho - maxX, np.random.rand()*alto - maxY),
+                ParOrdenado((np.random.rand() * 2 * orden) - orden, (np.random.rand() * 2 * orden) - orden)
                 ))
 
 
 entorno = Jaula(20, 20)
-entorno.generarAves(20, 5)
+entorno.generarAves(30, 10)
 prueba = PuntosAnim(1/24)
 prueba.main(entorno)

@@ -1,11 +1,12 @@
-from fisica import *
+import numpy as np
+from fisica import ParOrdenado, Particula, Entorno
 from matPlotPoints import PuntosAnim
 
 
 class Ave(Particula):
-    __vision = 20
-    __maxVel = 120
-    __cercania = 5
+    __vision = 10
+    __maxVel = 10
+    __cercania = 3
     __factorReaccion = 3
 
     @staticmethod
@@ -83,38 +84,41 @@ class Ave(Particula):
                 tendPos *= -1
             else:
                 tendPos *= 0
-        self.setTend(
-            self.getTend() +
-            tendVel +
-            tendPos
-        )
-        self.setVel(self.getVel() + self.getTend() * Ave.getFactorReaccion() * dt)
+        # self.setTend(
+        #     self.getTend() * 2 +
+        #     (tendVel + tendPos) / 2
+        # )
+        self.setVel(self.getVel() + (self.getTend() + (tendVel + tendPos) * 2) * Ave.getFactorReaccion() * dt)
 
 
 class Jaula(Entorno):
-    def __init__(self, ancho: float, alto: float, size: float = 7e-2, k: float = 1):
+    def __init__(self, ancho: float, alto: float, size: float = 5e-2, k: float = 1):
         super().__init__(ancho, alto, size, k)
 
     def correccion(self, p: Ave):
-        tend = p.getTend()
         pos = p.getPos()
-        if (pos.getX() >= self.getMaxX()*0.3) or (pos.getX() <= -self.getMaxX()*0.3) or (pos.getY() >= self.getMaxY()*0.3) or (pos.getY() <= -self.getMaxY()*0.3):
-            tend += pos * 2
-        super().correccion(p)
+        x = pos.getX()
+        y = pos.getY()
+        maxX = self.getAncho()/2 * 0.7
+        maxY = self.getAlto()/2 * 0.7
+        if (x >= maxX) or (x <= -maxX) or (y >= maxY) or (y <= -maxY):
+            p.setTend(p.getTend() - pos * 100000)
+        # super().correccion(p)
 
     def generarAves(self, n: int, orden: float = 2):
         ancho = self.getAncho() * 0.7
         alto = self.getAlto() * 0.7
-        maxX = self.getMaxX() * 0.7
-        maxY = self.getMaxY() * 0.7
+        maxX = self.getAncho()/2 * 0.7
+        maxY = self.getAlto()/2 * 0.7
         for i in range(n):
+            i = i # no me rompas las bolas pylint
             self.agregarParticula(Ave(
                 ParOrdenado(np.random.rand()*ancho - maxX, np.random.rand()*alto - maxY),
                 ParOrdenado((np.random.rand() * 2 * orden) - orden, (np.random.rand() * 2 * orden) - orden)
                 ))
 
 
-entorno = Jaula(100, 100, 0.3)
-entorno.generarAves(50, 100)
-prueba = PuntosAnim(1/60)
+entorno = Jaula(50, 50)
+entorno.generarAves(5, 100)
+prueba = PuntosAnim(1/24)
 prueba.main(entorno)

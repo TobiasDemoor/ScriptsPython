@@ -4,10 +4,10 @@ from matPlotPoints import PuntosAnim
 
 
 class Ave(Particula):
-    __vision = 10
-    __maxVel = 10
-    __cercania = 3
-    __factorReaccion = 3
+    __vision = 5
+    __maxVel = 12
+    __cercania = 2
+    __factorReaccion = 0.5
 
     @staticmethod
     def setVision(vision: float):
@@ -58,58 +58,78 @@ class Ave(Particula):
         super().setVel(vel)
 
     def promedio(self, aves: np.ndarray) -> tuple:
-        promPos = ParOrdenado()
+        centro = ParOrdenado()
         promVel = ParOrdenado()
+        repulsion = ParOrdenado()
+        miPos = self.getPos()
         cont = 0
         for ave in aves:
-            if self.distancia(ave) < Ave.getVision():
-                promPos += ave.getPos()
+            dist = self.distancia(ave)
+            if dist < Ave.getVision():
+                pos = ave.getPos()
+                if dist < Ave.getCercania():
+                    repulsion += miPos - pos
+                centro += pos
                 promVel += ave.getVel()
                 cont += 1
         if cont != 0:
-            promPos = promPos / cont
-            promVel = promVel / cont
+            centro /= cont
+            promVel /= cont
         else:
-            promPos = self.getPos()
+            centro = self.getPos()
             promVel = self.getVel()
-        return promPos, promVel
+        return centro, promVel, repulsion
 
     def actualiza(self, aves: np.ndarray, dt: float):
         self.setPos(self.getPos() + self.getVel() * dt)
         prom = self.promedio(aves)
         tendPos = prom[0] - self.getPos()
         tendVel = prom[1] - self.getVel()
-        if tendPos.modulo() < Ave.getCercania():
-            if tendPos.modulo() > 0:
-                tendPos *= -1
-            else:
-                tendPos *= 0
+        # if tendPos.modulo() < Ave.getCercania():
+        #     if tendPos.modulo() > 0:
+        #         tendPos *= -1
+        #     else:
+        #         tendPos *= 0
+        # print(tendPos)
+        self.setVel(self.getVel() + (tendVel * dt + tendPos + prom[2]).getUnitario() * Ave.getFactorReaccion())
         # self.setTend(
         #     self.getTend() * 2 +
         #     (tendVel + tendPos) / 2
         # )
-        self.setVel(self.getVel() + (self.getTend() + (tendVel + tendPos) * 2) * Ave.getFactorReaccion() * dt)
+        # self.setVel(self.getVel() + (self.getTend() + (tendVel + tendPos) * 2) * Ave.getFactorReaccion() * dt)
 
 
 class Jaula(Entorno):
-    def __init__(self, ancho: float, alto: float, size: float = 5e-2, k: float = 1):
+    def __init__(self, ancho: float, alto: float, size: float = 5e-2, rango: float = 0.8, k: float = 1):
         super().__init__(ancho, alto, size, k)
+        if ancho > alto:
+            self.radioAtr = alto/2
+        else:
+            self.radioAtr = ancho/2
+        self.radioAtr *= rango
+        self.rango = rango
 
     def correccion(self, p: Ave):
         pos = p.getPos()
-        x = pos.getX()
-        y = pos.getY()
-        maxX = self.getAncho()/2 * 0.7
-        maxY = self.getAlto()/2 * 0.7
-        if (x >= maxX) or (x <= -maxX) or (y >= maxY) or (y <= -maxY):
-            p.setTend(p.getTend() - pos * 100000)
-        # super().correccion(p)
+        # x = pos.getX()
+        # y = pos.getY()
+        # maxX = self.getAncho()/2 * self.rango
+        # maxY = self.getAlto()/2 * self.rango
+        # if (x >= maxX) or (x <= -maxX) or (y >= maxY) or (y <= -maxY):
+        if pos.modulo() > self.radioAtr:
+            p.setVel(p.getVel() - p.getPos())
+        super().correccion(p)
+    
+    def step(self, dt: float):
+        for p in self.getParticulas():
+            self.correccion(p)
+            p.actualiza(self.getParticulas(), dt)
 
     def generarAves(self, n: int, orden: float = 2):
-        ancho = self.getAncho() * 0.7
-        alto = self.getAlto() * 0.7
-        maxX = self.getAncho()/2 * 0.7
-        maxY = self.getAlto()/2 * 0.7
+        ancho = self.getAncho() * self.rango
+        alto = self.getAlto() * self.rango
+        maxX = self.getAncho()/2 * self.rango
+        maxY = self.getAlto()/2 * self.rango
         for i in range(n):
             i = i # no me rompas las bolas pylint
             self.agregarParticula(Ave(
@@ -118,7 +138,7 @@ class Jaula(Entorno):
                 ))
 
 
-entorno = Jaula(50, 50)
-entorno.generarAves(5, 100)
+entorno = Jaula(20, 20)
+entorno.generarAves(20, 100)
 prueba = PuntosAnim(1/24)
 prueba.main(entorno)

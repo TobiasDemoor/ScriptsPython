@@ -53,16 +53,15 @@ class PuntosAnim:
                                 ec='none', lw=2, fc='none'
                                 )
         self.rect2 = plt.Rectangle(
-                                    (-self.entorno.getAncho()*0.7/2,
-                                    -self.entorno.getAlto()*0.7/2),
-                                self.entorno.getAncho()*0.7,
-                                self.entorno.getAlto()*0.7,
+                                    (-self.entorno.getAncho()*self.entorno.rango/2,
+                                    -self.entorno.getAlto()*self.entorno.rango/2),
+                                self.entorno.getAncho()*self.entorno.rango,
+                                self.entorno.getAlto()*self.entorno.rango,
                                 ec='none', lw=2, fc='none'
                                 )
         self.axes.add_patch(self.rect)
         self.axes.add_patch(self.rect2)
         # creo el objeto animacion
-        print(1000*self.dt)
         self.anim = animation.FuncAnimation(
             self.fig, self.animate, init_func=self.initAnim, frames=600, interval=1000*self.dt, blit=True)
         plt.show()

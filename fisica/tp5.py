@@ -53,7 +53,7 @@ def incisoH(muestra, mmin, mmax):
     media = statistics.mean(muestra)
     ymax = max(n) + 2
     plt.vlines(media, 0, ymax, 'orange', label="Media muestral", linestyles="dashed")
-    plt.vlines(media+0.015, 0, ymax, 'r', label="Media ajustada", linestyles="dashed")
+    plt.vlines(media+0.15, 0, ymax, 'r', label="Media ajustada", linestyles="dashed")
     plt.ylim(0, ymax)
     plt.legend(loc='upper right')
     plt.savefig("histograma3.png")
@@ -61,6 +61,7 @@ def incisoH(muestra, mmin, mmax):
 # incisoA(muestra, mmin, mmax)
 # incisoB(muestra)
 # incisoC(muestra)
-# incisoH(muestra, mmin, mmax)
+incisoH(muestra, mmin, mmax)
+
 
 plt.show()

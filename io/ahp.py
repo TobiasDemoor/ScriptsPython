@@ -114,9 +114,9 @@ def relConsistencia(mat, pri):
 #         [1/2, 1, 1],
 #     ]
 # ], np.float)
-# prioridades = np.array(list(map(lambda x: priCriterio(x), mats)))
+# prioridades = np.array(map(lambda x: priCriterio(x), mats))
 # priCriterios = priCriterio(matCriterios)
-# rcs = np.array(list(map(lambda x, y: relConsistencia(x, y), mats, prioridades)))
+# rcs = np.array(map(lambda x, y: relConsistencia(x, y), mats, prioridades))
 # prioridadGlobal = priGlobal(prioridades, priCriterios)
 # print(rcs)
 # print(prioridadGlobal)
@@ -161,14 +161,14 @@ def relConsistencia(mat, pri):
 #         ]
 #     ]
 # ], np.float)
-# priSubcriterios = np.array(list(map(lambda x: priCriterio(x), matsSubcriterios)))
+# priSubcriterios = np.array(map(lambda x: priCriterio(x), matsSubcriterios))
 # priCriterios = priCriterio(matCriterios)
-# prioridades = np.array(list(map(
-#     lambda x: np.array(list(map(
+# prioridades = np.array(map(
+#     lambda x: np.array(map(
 #         lambda y: priCriterio(y), x
-#     ))), mats
-# )))
-# priGlobalsubcriterios = np.array(list(map(lambda x, y: priGlobal(x, y), prioridades, priSubcriterios)))
+#     )), mats
+# ))
+# priGlobalsubcriterios = np.array(map(lambda x, y: priGlobal(x, y), prioridades, priSubcriterios))
 # prioridadGlobal = priGlobal(priGlobalsubcriterios, priCriterios)
 # print(prioridades)
 # print(priGlobalsubcriterios)

@@ -57,7 +57,7 @@ class Ave(Particula):
             vel *= Ave.getMaxVel() / modulo
         super().setVel(vel)
 
-    def promedio(self, aves: np.ndarray) -> tuple:
+    def promedio(self, aves: np.array) -> tuple:
         centro = ParOrdenado()
         promVel = ParOrdenado()
         repulsion = ParOrdenado()
@@ -80,7 +80,7 @@ class Ave(Particula):
             promVel = self.getVel()
         return centro, promVel, repulsion
 
-    def actualiza(self, aves: np.ndarray, dt: float):
+    def actualiza(self, aves: np.array, dt: float):
         self.setPos(self.getPos() + self.getVel() * dt)
         prom = self.promedio(aves)
         tendPos = prom[0] - self.getPos()

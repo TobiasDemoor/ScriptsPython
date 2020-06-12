@@ -124,7 +124,7 @@ class Particula:
     def getArr(self):
         return self.getPos().getArr()
 
-    def actualiza(self, particulas: np.ndarray, dt: float):
+    def actualiza(self, particulas: np.array, dt: float):
         raise NotImplementedError
 
 
@@ -177,7 +177,7 @@ class Entorno:
     def getK(self) -> float:
         return self.__k
     
-    def getParticulas(self) -> np.ndarray:
+    def getParticulas(self) -> np.array:
         return self.__particulas
 
     def setMaxX(self, maxX: float):
@@ -207,7 +207,7 @@ class Entorno:
             p.actualiza(self.__particulas, dt)
             self.correccion(p)
 
-    def state(self) -> np.ndarray:
+    def state(self) -> np.array:
         vect = []
         for p in self.__particulas:
             vect.append(p.getArr())

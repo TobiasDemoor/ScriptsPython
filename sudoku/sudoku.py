@@ -32,7 +32,7 @@ class Pos:
 
 
 class Sudoku:
-    def __init__(self, mat: numpy.ndarray):
+    def __init__(self, mat: numpy.array):
         self.matRes = mat
 
     def getVal(self, x: int = None, y: int = None, pos: Pos = None) -> int:

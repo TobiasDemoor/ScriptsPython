@@ -14,7 +14,7 @@ class Carga(Particula):
     def getRadio(self) -> float:
         return self.__radio
 
-    def _fuerzaCoulombQ(self, cargas: np.ndarray) -> ParOrdenado:
+    def _fuerzaCoulombQ(self, cargas: np.array) -> ParOrdenado:
         fuerza = ParOrdenado()
         for q in cargas:
             fuerza += q.getFuerza(self)
@@ -26,10 +26,10 @@ class Carga(Particula):
     def _fuerzaLorentz(self, b: ICampoVectorial) -> ParOrdenado:
         return self.getVel().prodVect(b.valor(self.getPos())) * self.getCarga()
 
-    def _fuerzaTotal(self, cargas: np.ndarray, e: ICampoVectorial, b: ICampoVectorial):
+    def _fuerzaTotal(self, cargas: np.array, e: ICampoVectorial, b: ICampoVectorial):
         return self._fuerzaCoulombQ(cargas) + self._fuerzaCoulombE(e) + self._fuerzaLorentz(b)
 
-    def actualiza(self, cargas: np.ndarray, dt: float, e: ICampoVectorial = CampoNulo(), b: ICampoVectorial = CampoNulo()):
+    def actualiza(self, cargas: np.array, dt: float, e: ICampoVectorial = CampoNulo(), b: ICampoVectorial = CampoNulo()):
         self.setPos(self.getPos() + self.getVel() * dt)
         self.setVel(self.getVel() +
                     (self._fuerzaTotal(cargas, e, b) / self.getMasa()) * dt)

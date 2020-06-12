@@ -5,14 +5,12 @@ import scipy.stats as stat
 import statistics
 import random
 
-
 def prob(v):
     suma = sum(v)
     res = []
     for i in v:
         res.append(i/suma)
     return res
-
 
 def sim1(rand, probs, vals):
     res = []
@@ -28,17 +26,6 @@ def sim1(rand, probs, vals):
 
 def poisson(mu, k):
     return (num.e**(-mu) * mu**k)/math.factorial(k)
-
-
-def desvStd(v, mu=None):
-    sigma = 0
-    if mu == None:
-        mu = sum(v)/v.__len__()
-    for i in v:
-        sigma += (i - mu)**2
-    sigma /= v.__len__()
-    return math.sqrt(sigma)
-
 
 def regr(x, y):
     m, b, r, p, err = stat.linregress(x, y)
@@ -81,7 +68,7 @@ def regr(x, y):
 #         0.7837, 0.2267, 0.8649, 0.7367, 0.2143]
 
 # res = sim1(rand, freq, pago)
-# print(res.__len__() - res.count(0))
+# print(len(res) - res.count(0))
 # suma = sum(res)
 # print(suma)
 # endregion
@@ -128,7 +115,7 @@ def regr(x, y):
 # res = sim1(rand, prob, range(17))
 
 # suma = sum(res)
-# mu = suma/rand.__len__()
+# mu = suma/len(rand)
 
 # sigma = statistics.stdev(res)
 
@@ -211,7 +198,7 @@ def regr(x, y):
 #         ganancia -= extra*gasto
 #     else:
 #         ganancia += extra*util
-# print(ganancia/rand.__len__())
+# print(ganancia/len(rand))
 # endregion
 
 # region 8

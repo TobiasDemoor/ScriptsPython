@@ -1,4 +1,5 @@
 import numpy as np
+from arbol import Node
 
 RI = {
     3: 0.58,
@@ -45,6 +46,15 @@ def relConsistencia(mat, pri):
     prom = sum(aux/pri)/n
     ic = (prom - n)/(n-1)
     return ic/RI[n]
+
+
+def procArbol(nodo):
+    hijos = nodo.getChildren()
+    if len(hijos) == 0:
+        return priCriterio(nodo.getValue())
+    else:
+        prioridades = np.array(list(map(procArbol, hijos)))
+        return priGlobal(prioridades, priCriterio(nodo.getValue()))
 
 
 # region 1
@@ -123,54 +133,40 @@ def relConsistencia(mat, pri):
 # endregion
 
 # region 4
-# criterios = ["Entrega", "Calidad"]
-# subcriterios = [
-#     ["Fecha", "Cantidad"],
-#     ["Conformidad", "Funcionalidad"],
-# ]
-# matCriterios = np.array([
-#     [1, 3],
-#     [1/3, 1],
-# ], np.float)
-# matsSubcriterios = np.array([
-#     [
-#         [1, 2],
-#         [1/2, 1],
-#     ], [
-#         [1, 7],
-#         [1/7, 1]
-#     ]
-# ], np.float)
-# nombres = ["P1", "P2"]
-# mats = np.array([
-#     [
-#         [
-#             [1, 1/3],
-#             [3, 1],
-#         ],[
-#             [1, 5],
-#             [1/5, 1],
-#         ]
-#     ], [
-#         [
-#             [1,4],
-#             [1/4,1],
-#         ],[
-#             [1, 2],
-#             [1/2, 1],
-#         ]
-#     ]
-# ], np.float)
-# priSubcriterios = np.array(list(map(lambda x: priCriterio(x), matsSubcriterios)))
-# priCriterios = priCriterio(matCriterios)
-# prioridades = np.array(list(map(
-#     lambda x: np.array(list(map(
-#         lambda y: priCriterio(y), x
-#     ))), mats
-# )))
-# priGlobalsubcriterios = np.array(list(map(lambda x, y: priGlobal(x, y), prioridades, priSubcriterios)))
-# prioridadGlobal = priGlobal(priGlobalsubcriterios, priCriterios)
-# print(prioridades)
-# print(priGlobalsubcriterios)
-# print(prioridadGlobal)
+fecha = Node(np.array([  # Subcriterio Fecha
+    [1, 1/3],
+    [3, 1],
+]))
+
+cantidad = Node(np.array([  # Subcriterio Cantidad
+    [1, 5],
+    [1/5, 1],
+]))
+
+entrega = Node(np.array([  # Criterio Entrega
+    [1, 2],
+    [1/2, 1],
+]), [fecha, cantidad])
+
+conform = Node(np.array([  # Subcriterio Conformidad
+    [1, 4],
+    [1/4, 1],
+]))
+
+funcion = Node(np.array([  # Subcriterio Funcionalidad
+    [1, 2],
+    [1/2, 1],
+]))
+
+calidad = Node(np.array([  # Criterio Calidad
+    [1, 7],
+    [1/7, 1]
+]), [conform, funcion])
+
+crit = Node(np.array([  # Criterios
+    [1, 3],
+    [1/3, 1],
+]), [entrega, calidad])
+
+print(procArbol(crit))
 # endregion

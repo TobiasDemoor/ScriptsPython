@@ -15,7 +15,7 @@ def incisoA(muestra, mmin, mmax):
     k = 1 + 3.332 * math.log10(200)
     k = round(k)
     n, bins, patches = plt.hist(muestra, bins=k, edgecolor='black', linewidth=1.2)
-    plt.xticks(bins, np.array(map(lambda x: round(x, 3), bins)), fontsize=10)
+    plt.xticks(bins, np.array(list(map(lambda x: round(x, 3), bins))), fontsize=10)
     plt.savefig('histograma1.png')
     x = np.linspace(mmin,mmax,2000)
     y = list(map(lambda x: stat.norm.pdf(x, statistics.mean(muestra), statistics.stdev(muestra))*k, x))
@@ -49,7 +49,7 @@ def incisoH(muestra, mmin, mmax):
     k = 1 + 3.332 * math.log10(200)
     k = round(k)
     n, bins, patches = plt.hist(muestra, bins=k, edgecolor='black', linewidth=1.2)
-    plt.xticks(bins, np.array(map(lambda x: round(x, 3), bins)), fontsize=10)
+    plt.xticks(bins, np.array(list(map(lambda x: round(x, 3), bins))), fontsize=10)
     media = statistics.mean(muestra)
     ymax = max(n) + 2
     plt.vlines(media, 0, ymax, 'orange', label="Media muestral", linestyles="dashed")

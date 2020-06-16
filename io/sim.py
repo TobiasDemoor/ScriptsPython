@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
-import numpy as num
+import numpy as np
 import math
 import scipy.stats as stat
 import statistics
 import random
+
 
 def prob(v):
     suma = sum(v)
@@ -11,6 +12,7 @@ def prob(v):
     for i in v:
         res.append(i/suma)
     return res
+
 
 def sim1(rand, probs, vals):
     res = []
@@ -25,7 +27,8 @@ def sim1(rand, probs, vals):
 
 
 def poisson(mu, k):
-    return (num.e**(-mu) * mu**k)/math.factorial(k)
+    return (np.e**(-mu) * mu**k)/math.factorial(k)
+
 
 def regr(x, y):
     m, b, r, p, err = stat.linregress(x, y)
@@ -140,50 +143,43 @@ def regr(x, y):
 
 # region 6
 # dReap = [2, 3, 4, 5, 6, 7, 8]
-# pReap = [5, 13, 17, 27, 23, 10, 5]
+# pReap = np.array([5, 13, 17, 27, 23, 10, 5])
 # dCons = [70, 80, 90, 100, 110, 120, 130]
-# pCons = [7, 10, 18, 28, 21, 10, 6]
+# pCons = np.array([7, 10, 18, 28, 21, 10, 6])
 
-# aux = sum(pReap)
-# pReap[:] = [x/aux for x in pReap]
-# aux = sum(pCons)
-# pCons[:] = [x/aux for x in pCons]
+# pReap = pReap / sum(pReap)
+# pCons = pCons / sum(pCons)
 
-# r1 = []
-# r2 = []
 
-# for i in range(30):
-#     r1.append(random.random())
-#     r2.append(random.random())
+# r1 = [0.91, 0.59, 0.88, 0.19, 0.75, 0.45, 0.43, 0.27, 0.15, 0.25, 0.06, 0.45, 0.22, 0.14, 0.80,
+#       0.08, 0.62, 0.52, 0.68, 0.89, 0.39, 0.70, 0.64, 0.51, 0.25, 0.55, 0.84, 0.35, 0.28, 0.81]
+# r2 = [0.63, 0.27, 0.15, 0.99, 0.86, 0.71, 0.74, 0.45, 0.11, 0.02, 0.15, 0.14, 0.18, 0.07, 0.14,
+#       0.58, 0.68, 0.39, 0.31, 0.08, 0.13, 0.55, 0.47, 0.99, 0.45, 0.88, 0.54, 0.70, 0.98, 0.96]
+
 
 # simReap = sim1(r1, pReap, dReap)
-# simCons = sim1(r1, pCons, dCons)
-# simR = list(map(lambda d, L: d*L, simCons, simReap))
+# simCons = sim1(r2, pCons, dCons)
 
-# espera = -1
+# arribo = -1
 # stock = 200
 # gastos = 0
 
-# # ss = statistics.stdev(simReap)*stat.norm.ppf(0.90)
-# ss = 0
+# ss = statistics.stdev(dCons)*math.sqrt(statistics.mean(dReap))*stat.norm.ppf(0.90);
+# R = statistics.mean(dCons)*statistics.mean(dReap) + ss
 # for i in range(30):
 #     stock -= simCons[i]
 #     if stock > 0:
 #         gastos += stock*0.3
-#     if espera > 0:
-#         espera -= 1
-#     elif espera == 0:
-#         espera = -1
-#         gastos += -1*stock*2
+#     if (i > arribo) and (stock <= R):
+#         arribo = i + simReap[i]
+#         print("Pedido solicitado dia %d"%i)
+#     elif i == arribo:
+#         if stock < 0:
+#             gastos += -1*stock*2
+#             stock = 0
 #         stock += 500
-#     elif stock < simCons[i]*simReap[i] + ss:
-#         espera = simReap[i]
-#         print("Pedido solicitado dia %d", i)
 
-# print(gastos)
-# print(simReap)
-# print(simCons)
-# print(sum(simR)/30)
+# print("Gastos totales: $ %d"%gastos)
 # endregion
 
 # region 7
@@ -207,11 +203,11 @@ def regr(x, y):
 
 
 # hist = []
-# n = 8
+# n = 6
 # for j in range(30):
 #     esperando = 0
-#     espera = 0
-#     for i in range(n):
+#     espera = 120/n
+#     for i in range(1,n):
 #         espera += norm(random.random())
 #         entrePersonas = expon(random.random())
 #         espera -= entrePersonas
@@ -222,6 +218,6 @@ def regr(x, y):
 #         hist.append(esperando)
 #         esperando = 1
 #         espera += 120/n
-# print(sum(hist)/(30*n))
 
+# print(sum(hist)/(30*n))
 # endregion

@@ -20,12 +20,13 @@ class PuntoTrig:
         return self.cos
 
 def initAnim():
-    global particles
+    global particles, polinom
     particles.set_data([],[])
-    return particles,
+    polinom.set_data([],[])
+    return particles, polinom
 
 def animate(i):
-    global particles, puntos
+    global particles, polinom, puntos
     vectX = []
     vectY = []
     for p in puntos:
@@ -33,8 +34,12 @@ def animate(i):
         vectX.append(aux[0])
         vectY.append(aux[1])
     particles.set_data(vectX, vectY)
+    aux = puntos[0].getXY(i/12)
+    vectX.append(aux[0])
+    vectY.append(aux[1])
+    polinom.set_data(vectX, vectY)
     particles.set_markersize(5)
-    return particles,
+    return particles, polinom
 
 puntos = []
 n = 10
@@ -51,13 +56,14 @@ axes = fig.add_subplot(111, aspect='equal', autoscale_on=True,
 
 # particles holds the locations of the particles
 particles, = axes.plot([], [], 'bo', ms=6)
+polinom, = axes.plot([],[],'b')
 axes.add_artist(plt.Circle((0,0),1,fill=False))
 
 
-for p in puntos:
-    sin = p.getSin()
-    cos = p.getCos()
-    axes.plot([cos, -cos], [sin,-sin], color="black")
+# for p in puntos:
+#     sin = p.getSin()
+#     cos = p.getCos()
+#     axes.plot([cos, -cos], [sin,-sin], color="black")
 
 
 # creo el objeto animacion

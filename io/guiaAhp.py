@@ -1,6 +1,5 @@
 import numpy as np
-from invop.NodoArbol import NodoArbol
-from invop.AHP import AHP
+from invop.AHP import AHP, NodoArbol
 
 # region 1
 nombres = ["BsAs", "Rosario", "MdP"]

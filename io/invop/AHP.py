@@ -1,5 +1,24 @@
 import numpy as np
 
+
+class NodoArbol:
+    def __init__(self, value, children=[]):
+        self.value = value
+        self.children = children
+
+    def addChild(self, child):
+        self.children.append(child)
+
+    def getChildren(self):
+        return self.children
+
+    def getChild(self, index):
+        return self.children[index]
+
+    def getValue(self):
+        return self.value
+
+
 class AHP:
     RI = {
         3: 0.58,
@@ -48,7 +67,7 @@ class AHP:
         return ic/AHP.RI[n]
 
     @staticmethod
-    def procArbol(nodo):
+    def procArbol(nodo: NodoArbol):
         hijos = nodo.getChildren()
         if len(hijos) == 0:
             return AHP.priCriterio(nodo.getValue())

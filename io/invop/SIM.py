@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import scipy.stats as stats
+import numpy as np
 import math
+
 
 class DistExpFactory:
     @staticmethod
@@ -33,22 +35,43 @@ class DistExpFactory:
         return DistExp(valores, probAcum)
 
 
-class DistExp:
-    def __init__(self, valores, probAcum):
+class Dist:
+    def __init__(self, valores):
         self.valores = valores
-        self.probAcum = probAcum
-
-    def setProbAcum(self, probAcum):
-        self.probAcum = probAcum
-
-    def getProbAcum(self):
-        return self.probAcum
 
     def setValores(self, valores):
         self.valores = valores
 
     def getValores(self):
         return self.valores
+
+    def inversa(self, prob):
+        raise NotImplementedError()
+
+    def simulacion(self, rand):
+        res = []
+        for i in rand:
+            res.append(self.inversa(i))
+        return res
+
+    def distSimulacion(self, rand):
+        sim = self.simulacion(rand)
+        freq = []
+        for i in self.valores:
+            freq.append(sim.count(i))
+        return DistExpFactory.fromFrecuencia(self.valores, freq)
+
+
+class DistExp(Dist):
+    def __init__(self, valores, probAcum):
+        self.probAcum = probAcum
+        super().__init__(valores)
+
+    def setProbAcum(self, probAcum):
+        self.probAcum = probAcum
+
+    def getProbAcum(self):
+        return self.probAcum
 
     def inversa(self, prob):
         i = 0
@@ -69,14 +92,32 @@ class DistExp:
         return res
 
 
-class DistTeoricaEntera:
-    def __init__(self, funcion):
-        self.funcion = funcion
+class DistTeoricaDiscreta(Dist):
+    epsilon = 1e-4
 
-    def getProbAcum(self, tope):
+    def __init__(self, funcion, techo=0, piso=0):
+        self.funcion = funcion
+        self.piso = piso
+        if techo == 0:
+            i = 0
+            while funcion(i) > DistTeoricaDiscreta.epsilon:
+                i += 1
+            techo = i
+        self.techo = techo
+        super().__init__(range(piso, techo+1))
+
+    def setPiso(self, piso):
+        self.piso = piso
+        super().setValores(range(piso, self.techo+1))
+
+    def setTecho(self, techo):
+        self.techo = techo
+        super().setValores(range(self.piso, techo+1))
+
+    def getProbAcum(self):
         prob = []
         aux = 0
-        for i in range(tope):
+        for i in self.valores:
             aux += self.funcion(i)
             prob.append(aux)
         return prob
@@ -88,6 +129,9 @@ class DistTeoricaEntera:
             i += 1
             acum += self.funcion(i)
         return i
+
+    def prob(self, x):
+        return self.funcion(x)
 
 
 def simulacion(rand, inversa):

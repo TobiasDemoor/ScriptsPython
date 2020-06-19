@@ -14,13 +14,13 @@ from invop.SIM import *
 #     range(6),
 #     [0.1353, 0.2707, 0.2707, 0.1804, 0.0902]
 # )
-# print(pd.DataFrame({"rnd":rand, "sim": simulacion(rand, distexp.inversa)}))
+# print(pd.DataFrame({"rnd":rand, "sim": distexp.simulacion(rand)}))
 
 # distexp = DistExpFactory.fromFrecuencia(
 #     range(6),
 #     [59, 166, 268, 278, 142, 87]
 # )
-# print(pd.DataFrame({"rnd":rand, "sim": simulacion(rand, distexp.inversa)}))
+# print(pd.DataFrame({"rnd":rand, "sim": distexp.simulacion(rand)}))
 # endregion
 
 # region 2
@@ -32,9 +32,10 @@ from invop.SIM import *
 #     [15, 28, 40, 86, 75, 42]
 # )
 
-# print(pd.DataFrame({"rnd":rand, "sim": simulacion(rand, distexp.inversa)}))
+# print(pd.DataFrame({"rnd":rand, "sim": distexp.simulacion(rand)}))
+# endregion
 
-# # 3
+# region 3
 # rand = [0.8627, 0.5938, 0.9329, 0.8281, 0.4018,
 #         0.7837, 0.2267, 0.8649, 0.7367, 0.2143]
 
@@ -43,7 +44,7 @@ from invop.SIM import *
 #     [0.72, 0.10, 0.06, 0.05, 0.03, 0.02, 0.02]
 # )
 
-# res = simulacion(rand, distexp.inversa)
+# res = distexp.simulacion(rand)
 # print(len(res) - res.count(0))
 # suma = sum(res)
 # print(suma)
@@ -54,24 +55,12 @@ from invop.SIM import *
 #         0.14, 0.58, 0.68, 0.39, 0.31, 0.08, 0.13, 0.55, 0.47, 0.99, 0.45, 0.88, 0.54, 0.70, 0.98, 0.96]
 
 # distexp = DistExpFactory.fromProbAbs(range(1, 7), [0.1, 0.2, 0.3, 0.2, 0.1, 0.1])
-
-# res = simulacion(rand, distexp.inversa)
-# distsim = DistExpFactory.fromMuestra(res)
-# # y = []
-# # probSim = []
-# # aux = 0
-# # for i in distexp.getValores():
-# #     count = res.count(i)
-# #     y.append(count)
-# #     aux += count/30
-# #     probSim.append(aux)
+# distsim = distexp.distSimulacion(rand)
 
 # m, b, r = regr(distexp.getProbAcum(), distsim.getProbAcum())
 
 # print(r**2)
 # print(distsim.getProbAcum())
-# # plt.plot(vals, y)
-# # plt.axis([0, 7, 0, 10])
 # plt.grid()
 # plt.show()
 # endregion
@@ -81,17 +70,16 @@ from invop.SIM import *
 #         0.5408, 0.6839, 0.4592, 0.3108, 0.8364, 0.1355, 0.5595, 0.4799, 0.7572, 0.4588, 0.4383, 0.5470, 0.8650, 0.9896, 0.9911]
 # media = 5
 
-# dist = DistTeoricaEntera(lambda x: poisson(media, x))
+# dist = DistTeoricaDiscreta(lambda x: poisson(media, x))
 
 # res = simulacion(rand, dist.inversa)
 # suma = sum(res)
 # mu = suma/len(rand)
 
 # sigma = statistics.stdev(res)
-# distsim = DistExpFactory.fromMuestra(res)
-# distsimcompleta = DistTeoricaEntera(distsim.prob)
+# distsim = dist.distSimulacion(rand)
 
-# m, b, r = regr(dist.getProbAcum(max(res)), distsimcompleta.getProbAcum(max(res)))
+# m, b, r = regr(dist.getProbAcum(), distsim.getProbAcum())
 
 # print(suma)
 # print(mu)
@@ -143,19 +131,19 @@ from invop.SIM import *
 # endregion
 
 # region 7
-rand = [0.5029, 0.7333, 0.7818, 0.4541, 0.0727, 0.2290, 0.3246,
-        0.8961, 0.8025, 0.5754, 0.4769, 0.9083, 0.0278, 0.8062, 0.1894]
-util = 120
-gasto = 150
-ganancia = 0
-for i in rand:
-    ganancia += 50*util
-    extra = int(normInv(50, 2, i))-50
-    if extra > 0:
-        ganancia -= extra*gasto
-    else:
-        ganancia += extra*util
-print(ganancia/len(rand))
+# rand = [0.5029, 0.7333, 0.7818, 0.4541, 0.0727, 0.2290, 0.3246,
+#         0.8961, 0.8025, 0.5754, 0.4769, 0.9083, 0.0278, 0.8062, 0.1894]
+# util = 120
+# gasto = 150
+# ganancia = 0
+# for i in rand:
+#     ganancia += 50*util
+#     extra = int(normInv(50, 2, i))-50
+#     if extra > 0:
+#         ganancia -= extra*gasto
+#     else:
+#         ganancia += extra*util
+# print(ganancia/len(rand))
 # endregion
 
 # region 8

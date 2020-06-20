@@ -75,7 +75,7 @@ class DistExp(Dist):
 
     def inversa(self, prob):
         i = 0
-        while not(self.probAcum[i] > prob):
+        while not(self.probAcum[i] >= prob):
             i += 1
         return self.valores[i]
 

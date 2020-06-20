@@ -89,45 +89,55 @@ from invop.SIM import *
 # endregion
 
 # region 6
-# dReap = [2, 3, 4, 5, 6, 7, 8]
-# fReap = [5, 13, 17, 27, 23, 10, 5]
-# dCons = [70, 80, 90, 100, 110, 120, 130]
-# fCons = np.array([7, 10, 18, 28, 21, 10, 6])
+dReap = [2, 3, 4, 5, 6, 7, 8]
+fReap = [5, 13, 17, 27, 23, 10, 5]
+dCons = [70, 80, 90, 100, 110, 120, 130]
+fCons = np.array([7, 10, 18, 28, 21, 10, 6])
 
-# distExpL = DistExpFactory.fromFrecuencia(dReap, fReap)
-# distExpD = DistExpFactory.fromFrecuencia(dCons, fCons)
-
-
-# r1 = [0.91, 0.59, 0.88, 0.19, 0.75, 0.45, 0.43, 0.27, 0.15, 0.25, 0.06, 0.45, 0.22, 0.14, 0.80,
-#     0.08, 0.62, 0.52, 0.68, 0.89, 0.39, 0.70, 0.64, 0.51, 0.25, 0.55, 0.84, 0.35, 0.28, 0.81]
-# r2 = [0.63, 0.27, 0.15, 0.99, 0.86, 0.71, 0.74, 0.45, 0.11, 0.02, 0.15, 0.14, 0.18, 0.07, 0.14,
-#     0.58, 0.68, 0.39, 0.31, 0.08, 0.13, 0.55, 0.47, 0.99, 0.45, 0.88, 0.54, 0.70, 0.98, 0.96]
+distExpL = DistExpFactory.fromFrecuencia(dReap, fReap)
+distExpD = DistExpFactory.fromFrecuencia(dCons, fCons)
 
 
-# simReap = simulacion(r1, distExpL.inversa)
-# simCons = simulacion(r2, distExpD.inversa)
+r1 = [0.91, 0.59, 0.88, 0.19, 0.75, 0.45, 0.43, 0.27, 0.15, 0.25, 0.06, 0.45, 0.22, 0.14, 0.80,
+    0.08, 0.62, 0.52, 0.68, 0.89, 0.39, 0.70, 0.64, 0.51, 0.25, 0.55, 0.84, 0.35, 0.28, 0.81]
+r2 = [0.63, 0.27, 0.15, 0.99, 0.86, 0.71, 0.74, 0.45, 0.11, 0.02, 0.15, 0.14, 0.18, 0.07, 0.14,
+    0.58, 0.68, 0.39, 0.31, 0.08, 0.13, 0.55, 0.47, 0.99, 0.45, 0.88, 0.54, 0.70, 0.98, 0.96]
 
 
-# arribo = -1
-# stock = 200
-# gastos = 0
+simReap = distExpL.simulacion(r1)
+simCons = distExpD.simulacion(r2)
 
-# ss = statistics.stdev(dCons)*math.sqrt(statistics.mean(dReap))*stats.norm.ppf(0.90);
-# R = statistics.mean(dCons)*statistics.mean(dReap) + ss
-# for i in range(30):
-#     stock -= simCons[i]
-#     if stock > 0:
-#         gastos += stock*0.3
-#     if (i > arribo) and (stock <= R):
-#         arribo = i + simReap[i]
-#         print("Pedido solicitado dia %d"%i)
-#     elif i == arribo:
-#         if stock < 0:
-#             gastos += -1*stock*2
-#             stock = 0
-#         stock += 500
 
-# print("Gastos totales: $ %d"%gastos)
+arribo = -1
+stock = 500
+gastos = 0
+
+df = pd.DataFrame({"stock":[], "consumo":[], "R": [], "cAlm":[], "cFalta":[], "tReap": []})
+ss = statistics.stdev(dCons)*math.sqrt(statistics.mean(dReap))*stats.norm.ppf(0.90);
+almacenado = 0
+faltante = 0
+# ss = 0
+R = statistics.mean(dCons)*statistics.mean(dReap) + ss
+d= statistics.mean(dCons)
+j = 0
+for i in range(30):
+    if i == arribo:
+        if stock < 0:
+            faltante -= stock
+            stock = 0
+        stock += 500
+    stock -= simCons[i]
+    if stock > 0:
+        almacenado += stock
+    if (i >= arribo) and (stock <= d*simReap[j] + ss):
+        arribo = i + simReap[j]
+        j+= 1
+        print(f"Pedido solicitado dia {i}")
+    df.loc[i] = [stock, simCons[i], d*simReap[j] + ss, almacenado, faltante, simReap[j]]
+
+print(df)
+        
+print(f"Gastos totales: $ {almacenado*0.3+faltante*2}")
 # endregion
 
 # region 7

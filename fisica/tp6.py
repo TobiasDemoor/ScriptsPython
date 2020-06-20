@@ -93,8 +93,8 @@ def histogramaResiduos(datos, xdat):
 def erroresRegresion(datos, xdat):
     x = []
     y = []
-    for i in range(6):
-        for j in datos[i]:
+    for i, v in enumerate(datos):
+        for j in v:
             x.append(math.sqrt(xdat[i]))
             y.append(j)
     m, b, r, p, err = stats.linregress(x, y)

@@ -53,15 +53,35 @@ from invop.SIM import *
 # region 4
 # rand = [0.63, 0.27, 0.15, 0.99, 0.86, 0.71, 0.74, 0.45, 0.11, 0.02, 0.15, 0.14, 0.18, 0.07,
 #         0.14, 0.58, 0.68, 0.39, 0.31, 0.08, 0.13, 0.55, 0.47, 0.99, 0.45, 0.88, 0.54, 0.70, 0.98, 0.96]
+# dias = {1: "lunes", 2:"martes", 3:"miercoles", 4:"jueves", 5:"viernes", 6:"sabado"}
 
 # distexp = DistExpFactory.fromProbAbs(range(1, 7), [0.1, 0.2, 0.3, 0.2, 0.1, 0.1])
 # distsim = distexp.distSimulacion(rand)
 
-# m, b, r = regr(distexp.getProbAcum(), distsim.getProbAcum())
+# df = pd.DataFrame({"rand": rand, "dias":distsim.getMuestra()})
+# df = df.transpose()
+# print(df)
 
-# print(r**2)
-# print(distsim.getProbAcum())
-# plt.grid()
+# plan = np.zeros((6,4))
+# for i in distsim.getMuestra():
+#     j = list(plan[i-1]).index(min(plan[i-1]))
+#     plan[i-1][j] += 1
+
+# plan = pd.DataFrame(plan).transpose()
+# plan.columns = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado"]
+# print(plan)
+
+# # m, b, r = regr(distexp.getProbAcum(), distsim.getProbAcum())
+# # print(r**2)
+# # print(distsim.getProbAcum())
+# # plt.grid()
+
+# data = np.array(distsim.getMuestra())
+# d = np.diff(np.unique(data)).min()
+# left_of_first_bin = data.min() - float(d)/2
+# right_of_last_bin = data.max() + float(d)/2
+# plt.hist(data, np.arange(left_of_first_bin, right_of_last_bin + d, d))
+
 # plt.show()
 # endregion
 
@@ -89,55 +109,55 @@ from invop.SIM import *
 # endregion
 
 # region 6
-dReap = [2, 3, 4, 5, 6, 7, 8]
-fReap = [5, 13, 17, 27, 23, 10, 5]
-dCons = [70, 80, 90, 100, 110, 120, 130]
-fCons = np.array([7, 10, 18, 28, 21, 10, 6])
+# dReap = [2, 3, 4, 5, 6, 7, 8]
+# fReap = [5, 13, 17, 27, 23, 10, 5]
+# dCons = [70, 80, 90, 100, 110, 120, 130]
+# fCons = np.array([7, 10, 18, 28, 21, 10, 6])
 
-distExpL = DistExpFactory.fromFrecuencia(dReap, fReap)
-distExpD = DistExpFactory.fromFrecuencia(dCons, fCons)
-
-
-r1 = [0.91, 0.59, 0.88, 0.19, 0.75, 0.45, 0.43, 0.27, 0.15, 0.25, 0.06, 0.45, 0.22, 0.14, 0.80,
-    0.08, 0.62, 0.52, 0.68, 0.89, 0.39, 0.70, 0.64, 0.51, 0.25, 0.55, 0.84, 0.35, 0.28, 0.81]
-r2 = [0.63, 0.27, 0.15, 0.99, 0.86, 0.71, 0.74, 0.45, 0.11, 0.02, 0.15, 0.14, 0.18, 0.07, 0.14,
-    0.58, 0.68, 0.39, 0.31, 0.08, 0.13, 0.55, 0.47, 0.99, 0.45, 0.88, 0.54, 0.70, 0.98, 0.96]
+# distExpL = DistExpFactory.fromFrecuencia(dReap, fReap)
+# distExpD = DistExpFactory.fromFrecuencia(dCons, fCons)
 
 
-simReap = distExpL.simulacion(r1)
-simCons = distExpD.simulacion(r2)
+# r1 = [0.91, 0.59, 0.88, 0.19, 0.75, 0.45, 0.43, 0.27, 0.15, 0.25, 0.06, 0.45, 0.22, 0.14, 0.80,
+#     0.08, 0.62, 0.52, 0.68, 0.89, 0.39, 0.70, 0.64, 0.51, 0.25, 0.55, 0.84, 0.35, 0.28, 0.81]
+# r2 = [0.63, 0.27, 0.15, 0.99, 0.86, 0.71, 0.74, 0.45, 0.11, 0.02, 0.15, 0.14, 0.18, 0.07, 0.14,
+#     0.58, 0.68, 0.39, 0.31, 0.08, 0.13, 0.55, 0.47, 0.99, 0.45, 0.88, 0.54, 0.70, 0.98, 0.96]
 
 
-arribo = -1
-stock = 500
-gastos = 0
+# simReap = distExpL.simulacion(r1)
+# simCons = distExpD.simulacion(r2)
 
-df = pd.DataFrame({"stock":[], "consumo":[], "R": [], "cAlm":[], "cFalta":[], "tReap": []})
-ss = statistics.stdev(dCons)*math.sqrt(statistics.mean(dReap))*stats.norm.ppf(0.90);
-almacenado = 0
-faltante = 0
-# ss = 0
-R = statistics.mean(dCons)*statistics.mean(dReap) + ss
-d= statistics.mean(dCons)
-j = 0
-for i in range(30):
-    if i == arribo:
-        if stock < 0:
-            faltante -= stock
-            stock = 0
-        stock += 500
-    stock -= simCons[i]
-    if stock > 0:
-        almacenado += stock
-    if (i >= arribo) and (stock <= d*simReap[j] + ss):
-        arribo = i + simReap[j]
-        j+= 1
-        print(f"Pedido solicitado dia {i}")
-    df.loc[i] = [stock, simCons[i], d*simReap[j] + ss, almacenado, faltante, simReap[j]]
 
-print(df)
+# arribo = -1
+# stock = 500
+# gastos = 0
+
+# df = pd.DataFrame({"stock":[], "consumo":[], "R": [], "cAlm":[], "cFalta":[], "tReap": []})
+# ss = statistics.stdev(dCons)*math.sqrt(statistics.mean(dReap))*stats.norm.ppf(0.90);
+# almacenado = 0
+# faltante = 0
+# # ss = 0
+# R = statistics.mean(dCons)*statistics.mean(dReap) + ss
+# d= statistics.mean(dCons)
+# j = 0
+# for i in range(30):
+#     if i == arribo:
+#         if stock < 0:
+#             faltante -= stock
+#             stock = 0
+#         stock += 500
+#     stock -= simCons[i]
+#     if stock > 0:
+#         almacenado += stock
+#     if (i >= arribo) and (stock <= d*simReap[j] + ss):
+#         arribo = i + simReap[j]
+#         j+= 1
+#         print(f"Pedido solicitado dia {i}")
+#     df.loc[i] = [stock, simCons[i], d*simReap[j] + ss, almacenado, faltante, simReap[j]]
+
+# print(df)
         
-print(f"Gastos totales: $ {almacenado*0.3+faltante*2}")
+# print(f"Gastos totales: $ {almacenado*0.3+faltante*2}")
 # endregion
 
 # region 7
@@ -175,4 +195,46 @@ print(f"Gastos totales: $ {almacenado*0.3+faltante*2}")
 #         espera += 120/n
 
 # print(sum(hist)/(30*n))
+# endregion
+
+# region parcial 2008
+n = 1000
+mu = 1/24
+lam = 1/21
+lim = 9
+crechazo = 20
+calquiler = 10
+calquiler = 0
+rechazados = 0
+tfinal = []
+colas = []
+
+for i in range(n):
+    cola = 0
+    t1 = t0 = exponInv(lam, random.random())
+    while t0 < 1:
+        t1 += exponInv(lam, random.random())
+        tf = t0 + exponInv(mu, random.random())
+        while (tf > t1) and (t1< 1):
+            if cola == lim:
+                rechazados += 1
+            else:
+                cola += 1
+            t1 += exponInv(lam, random.random())
+        colas.append(cola)
+        if cola > 0:
+            cola -= 1
+            t0 = tf
+        else:
+            t0 = t1
+    tfinal.append(t0)
+
+print(rechazados*crechazo/n + calquiler)
+print(statistics.mean(tfinal), statistics.stdev(tfinal))
+data = np.array(colas)
+d = np.diff(np.unique(data)).min()
+left_of_first_bin = data.min() - float(d)/2
+right_of_last_bin = data.max() + float(d)/2
+plt.hist(data, np.arange(left_of_first_bin, right_of_last_bin + d, d))
+plt.show()
 # endregion

@@ -59,7 +59,7 @@ class Dist:
         freq = []
         for i in self.valores:
             freq.append(sim.count(i))
-        return DistExpFactory.fromFrecuencia(self.valores, freq)
+        return DistSimulada(self.valores, freq, sim)
 
 
 class DistExp(Dist):
@@ -90,6 +90,21 @@ class DistExp(Dist):
             else:
                 res = self.probAcum[i]
         return res
+
+
+class DistSimulada(DistExp):
+    def __init__(self, valores, frecuencias, muestra):
+        self.muestra = muestra
+        suma = sum(frecuencias)
+        aux = 0
+        prob = []
+        for i in frecuencias:
+            aux += i/suma
+            prob.append(aux)
+        super().__init__(valores, prob)
+
+    def getMuestra(self):
+        return self.muestra
 
 
 class DistTeoricaDiscreta(Dist):

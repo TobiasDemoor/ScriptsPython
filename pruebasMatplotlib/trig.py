@@ -38,11 +38,12 @@ def animate(i):
     vectX.append(aux[0])
     vectY.append(aux[1])
     polinom.set_data(vectX, vectY)
+    polinom.set_data([],[])
     particles.set_markersize(5)
     return particles, polinom
 
 puntos = []
-n = 10
+n = 4
 for i in range(n):
     puntos.append(PuntoTrig(i*math.pi/n))
 
@@ -60,10 +61,10 @@ polinom, = axes.plot([],[],'b')
 axes.add_artist(plt.Circle((0,0),1,fill=False))
 
 
-# for p in puntos:
-#     sin = p.getSin()
-#     cos = p.getCos()
-#     axes.plot([cos, -cos], [sin,-sin], color="black")
+for p in puntos:
+    sin = p.getSin()
+    cos = p.getCos()
+    axes.plot([cos, -cos], [sin,-sin], color="black")
 
 
 # creo el objeto animacion

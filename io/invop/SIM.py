@@ -169,7 +169,7 @@ def normInv(mu, sigma, prob):
 
 
 def regr(x, y):
-    m, b, r, p, err = stats.linregress(x, y)
+    m, b, r, _ = stats.linregress(x, y)
     plt.plot(x, y, 'o')
     ajust = []
     for i in x:

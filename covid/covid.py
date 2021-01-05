@@ -19,27 +19,7 @@ def plotSeries(series: pd.Series, **kwargs):
 
 datos: pd.DataFrame = pd.read_csv("./covid/Covid19Casos.csv")
 confirmados: pd.DataFrame = datos.query('clasificacion_resumen == "Confirmado"')
-# print(f"Cantidad de positivos: {len(confirmados)}")
-
-# confirmDiarios = group(confirmados)
-# ma7ConfirmDiarios = movingAverage(confirmDiarios)
-# totalesConfirm = confirmDiarios.cumsum()
-
-# plotSeries(confirmDiarios.plot())
-# plotSeries(ma7ConfirmDiarios.plot())
-# plotSeries(totalesConfirm.plot())
-
-fallecidos = confirmados.query('fallecido == "SI"')
-# print(f"Cantidad de fallecidos: {len(fallecidos)}")
-
-# fallDiarios = group(fallecidos)
-# ma7FallDiarios = movingAverage(fallDiarios)
-# totalesFall = fallDiarios.cumsum()
-
-# plotSeries(fallDiarios)
-# plotSeries(ma7FallDiarios)
-# plotSeries(totalesFall)
-
+fallecidos: pd.DataFrame = confirmados.query('fallecido == "SI"')
 
 def diasDeInternacionPorProvincia():
     global fallecidos
@@ -87,6 +67,25 @@ def tasaMortalidadPorProvincia():
     plt.legend()
     plt.show()
 
+# print(f"Cantidad de positivos: {len(confirmados)}")
+
+# confirmDiarios = group(confirmados)
+# ma7ConfirmDiarios = movingAverage(confirmDiarios)
+# totalesConfirm = confirmDiarios.cumsum()
+
+# plotSeries(ma7ConfirmDiarios.plot())
+# plotSeries(confirmDiarios.plot())
+# plotSeries(totalesConfirm.plot())
+
+# print(f"Cantidad de fallecidos: {len(fallecidos)}")
+
+# fallDiarios = group(fallecidos)
+# ma7FallDiarios = movingAverage(fallDiarios)
+# totalesFall = fallDiarios.cumsum()
+
+# plotSeries(fallDiarios)
+# plotSeries(ma7FallDiarios)
+# plotSeries(totalesFall)
 
 # tasaMortalidadPorProvincia()
 # diasDeInternacionPorProvincia()

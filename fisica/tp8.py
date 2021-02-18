@@ -14,17 +14,36 @@ a = [
 
 x = []
 y = []
+g = 9.80665
 for i, d in enumerate(diam):
-    x.extend([log10(d)]*len(a[i]))
-    y.extend(a[i])
-    # x.extend([d]*len(a[i]))
-    # y.extend([j**(2/5) for j in a[i]])
+    x.extend([d]*len(a[i]))
+    y.extend([j/g for j in a[i]])
 
-m, b, r, p, err = stats.linregress(x, y)
+def analisis():
+    global x, y
 
-print(r)
+    logx = [log10(i) for i in x]
+    logy = [log10(i) for i in y]
+    m, b, r, p, err = stats.linregress(logx, logy)
+    plt.plot(x, [10**(m*i + b) for i in logx])
+    plt.xscale('log')
+    plt.yscale('log')
+    print(r, m)
 
-plt.plot(x,y, '.')
-plt.plot(x, [m*i + b for i in x])
+def analisisCompensado():
+    global x, y
+
+    y = [i**(2/5) for i in y]
+    m, b, r, p, err = stats.linregress(x, y)
+    plt.plot(x, [m*i + b for i in x])
+    print(r, m)
+
+
+
+analisis()
+# analisisCompensado()
+
+plt.plot(x, y, '.k')
+plt.grid(True, which='both')
 plt.show()
 

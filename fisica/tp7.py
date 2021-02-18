@@ -57,19 +57,16 @@ for i in range(len(R2)):
     I2.append((imax + imin)/2)
     DI2.append((imax - imin)/2)
 
-print(I2)
-print(DI2)
-
-plt.errorbar(theeta, I2, fmt='.k', xerr=Dtheeta, yerr=DI2, capsize=3)
+# plt.errorbar(theeta, I2, fmt='.k', xerr=Dtheeta, yerr=DI2, capsize=3, label="Experimental")
 # plt.plot(theeta, I2, '-r', label="Experimental")
 
-plt.xticks(np.linspace(0, 360, 10))
-plt.ylabel('I[UP]')
-plt.xlabel('θ[°]')
+# plt.xticks(np.linspace(0, 360, 10))
+# plt.ylabel('I[UP]')
+# plt.xlabel('θ[°]')
 
 # analisis ley de malus
-# theeta2 = np.linspace(0, 360, 80)
-# I3 = [I2[0]*cos(i*pi/180)**2 for i in theeta2]
+theeta2 = np.linspace(0, 360, 80)
+I3 = [I2[0]*cos(i*pi/180)**2 for i in theeta2]
 # plt.plot(theeta2, I3, label="Malus")
 
 plt.legend()

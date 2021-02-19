@@ -30,14 +30,18 @@ DlogI = errorLog(I, DI)
 m, b, r, p, err = stats.linregress(logR1, logI)
 print(r, m, b)
 
-# plt.errorbar(R1, I, fmt='.k', yerr=DI, xerr=DR1, capsize=2)
-# plt.plot(R1, [10**(m*i + b) for i in logR1], '-r')
+# plt.errorbar(R1, I, fmt='.k', yerr=DI, xerr=DR1, capsize=2, label="Experimental")
+# plt.plot(R1, [10**(m*i + b) for i in logR1], '-r', label="Recta aproximación")
 
 # plt.yscale('log')
 # plt.xscale('log')
 # plt.ylabel('I[UP]')
 # plt.xlabel('R[Ω]')
 # plt.xlim([10**2, 10**4])
+
+# b = 0.5 + 2.232066849422923
+# m = -1
+# plt.plot(R1, [10**(m*i + b) for i in logR1], '-b', label="Recta m = -1")
 
 
 # valores de la segunda experiencia
@@ -57,12 +61,12 @@ for i in range(len(R2)):
     I2.append((imax + imin)/2)
     DI2.append((imax - imin)/2)
 
-# plt.errorbar(theeta, I2, fmt='.k', xerr=Dtheeta, yerr=DI2, capsize=3, label="Experimental")
 # plt.plot(theeta, I2, '-r', label="Experimental")
+plt.errorbar(theeta, I2, fmt='.k', xerr=Dtheeta, yerr=DI2, capsize=3, label="Experimental")
 
-# plt.xticks(np.linspace(0, 360, 10))
-# plt.ylabel('I[UP]')
-# plt.xlabel('θ[°]')
+plt.xticks(np.linspace(0, 360, 10))
+plt.ylabel('I[UP]')
+plt.xlabel('θ[°]')
 
 # analisis ley de malus
 theeta2 = np.linspace(0, 360, 80)

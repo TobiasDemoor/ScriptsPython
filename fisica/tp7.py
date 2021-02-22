@@ -12,7 +12,7 @@ def errorLog(datos, error):
 
 # valores de la primer experiencia
 l = [0.190, 0.200, 0.212, 0.227, 0.245, 0.269, 0.300, 0.347, 0.425, 0.600]
-Dl = 0.005
+Dl = 0.007
 R1 = [540, 590, 700, 838, 1077, 1485, 2050, 2460, 4030, 8470]
 DR1 = [6, 7, 8, 9, 11, 14, 36, 40, 52, 88]
 I = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
@@ -30,19 +30,23 @@ DlogI = errorLog(I, DI)
 m, b, r, p, err = stats.linregress(logR1, logI)
 print(r, m, b)
 
-# plt.errorbar(R1, I, fmt='.k', yerr=DI, xerr=DR1, capsize=2, label="Experimental")
-# plt.plot(R1, [10**(m*i + b) for i in logR1], '-r', label="Recta aproximación")
+plt.errorbar(R1, I, fmt='.k', yerr=DI, xerr=DR1, capsize=2, label="Experimental")
+plt.plot(R1, [10**(m*i + b) for i in logR1], '-r', label="Recta aproximación")
 
-# plt.yscale('log')
-# plt.xscale('log')
-# plt.ylabel('I[UP]')
-# plt.xlabel('R[Ω]')
-# plt.xlim([10**2, 10**4])
+# for i, d in enumerate(DlogI):
+#     try:
+#         print(f"{d} ({(100*d/logI[i])}%)")
+#     except:
+#         pass
 
-# b = 0.5 + 2.232066849422923
-# m = -1
-# plt.plot(R1, [10**(m*i + b) for i in logR1], '-b', label="Recta m = -1")
+# for i, d in enumerate(DlogR1):
+#     print(f"{d} ({(100*d/logR1[i])}%)")
 
+plt.yscale('log')
+plt.xscale('log')
+plt.ylabel('I[UP]')
+plt.xlabel('R[Ω]')
+plt.xlim([10**2, 10**4])
 
 # valores de la segunda experiencia
 theeta = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180,
@@ -62,11 +66,11 @@ for i in range(len(R2)):
     DI2.append((imax - imin)/2)
 
 # plt.plot(theeta, I2, '-r', label="Experimental")
-plt.errorbar(theeta, I2, fmt='.k', xerr=Dtheeta, yerr=DI2, capsize=3, label="Experimental")
+# plt.errorbar(theeta, I2, fmt='.k', xerr=Dtheeta, yerr=DI2, capsize=3, label="Experimental")
 
-plt.xticks(np.linspace(0, 360, 10))
-plt.ylabel('I[UP]')
-plt.xlabel('θ[°]')
+# plt.xticks(np.linspace(0, 360, 10))
+# plt.ylabel('I[UP]')
+# plt.xlabel('θ[°]')
 
 # analisis ley de malus
 theeta2 = np.linspace(0, 360, 80)

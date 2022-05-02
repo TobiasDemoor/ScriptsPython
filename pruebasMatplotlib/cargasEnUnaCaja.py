@@ -1,4 +1,5 @@
-from fisica import *
+import numpy as np
+from fisica import Particula, ParOrdenado, Entorno, ICampoVectorial, CampoNulo, CVConstante
 from matPlotPoints import PuntosAnim
 
 
@@ -65,6 +66,7 @@ class EntornoCCampo(Entorno):
             self.correccion(q)
 
 entorno = EntornoCCampo(4, 4, k=0.8, b=CVConstante(0, 0, 1e-9))
+entorno.rango = 0.8
 # entorno.agregarParticula(
 #     Carga(-1e-20, 2e-30, ParOrdenado(-0.5, 0), ParOrdenado(0, 0.3)))
 entorno.agregarParticula(
